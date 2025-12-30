@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ProductCard from "../components/ProductCard";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -10,19 +11,14 @@ export default function Home() {
   }, []);
 
   return (
-    <main>
-      <h1>Our Products</h1>
+    <main style={{ padding: "2rem" }}>
+      <h1>Featured Products</h1>
 
-      {products.map(p => (
-        <div key={p.id}>
-          <img src={p.image} alt={p.title} width="200" />
-          <h2>{p.title}</h2>
-          <p>{p.price}</p>
-          <a href={p.link} target="_blank" rel="noopener noreferrer">
-            View product
-          </a>
-        </div>
-      ))}
+      <div style={{ display: "grid", gap: "1.5rem" }}>
+        {products.map(product => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
     </main>
   );
 }
