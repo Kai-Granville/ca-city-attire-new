@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   let query = supabase
     .from("products")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("id", { ascending: false }); // Order by `id` instead of `created_at`
 
   // If `id` is provided, modify query to return a single product
   if (id) {
