@@ -207,3 +207,77 @@ button:hover, .btn:hover {
   h2 { font-size: 1.5rem; }
   h3 { font-size: 0.95rem; }
 }
+
+/* Global Reset */
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f7f7f7;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  color: #555;
+}
+
+/* Categories Section */
+.categories h2 {
+  margin-bottom: 1rem;
+}
+
+.category-list {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.category-btn {
+  padding: 0.8rem 1.2rem;
+  border: 1px solid #333;
+  border-radius: 8px;
+  font-weight: bold;
+  color: #333;
+  transition: all 0.2s;
+}
+
+.category-btn:hover {
+  background-color: #333;
+  color: #fff;
+}
+
+/* Product Grid Section */
+.product-grid-section h2 {
+  margin-bottom: 1rem;
+}
+
+/* Product Grid */
+.product-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
