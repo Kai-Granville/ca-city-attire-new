@@ -4,19 +4,18 @@ import ProductCard from "../../components/ProductCard";
 
 export default function CategoryPage() {
   const router = useRouter();
-  const { slug } = router.query; // undefined on first render
+  const { slug } = router.query;
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
     if (!slug) return;
 
-    // Fetch products for this category
     fetch(`/api/products?category=${slug}&limit=20`)
       .then(res => res.json())
       .then(data => setProducts(data));
   }, [slug]);
 
-  if (!slug) return null; // Wait for slug to exist
+  if (!slug) return null;
   if (!products) return <p>Loading...</p>;
 
   const title = slug.charAt(0).toUpperCase() + slug.slice(1);

@@ -1,5 +1,5 @@
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 export default function ProductPage() {
   const router = useRouter();
@@ -16,33 +16,20 @@ export default function ProductPage() {
   if (!product) return <p>Loading...</p>;
 
   return (
-    <div className="product-page">
-      <div className="product-grid">
-        {/* Image */}
-        <div className="product-image">
-          <img src={product.image || product.image_url} alt={product.title || product.name} />
-        </div>
+    <main className="container">
+      <h1>{product.title}</h1>
+      <img src={product.image} alt={product.title} style={{ maxWidth: "400px" }} />
+      <p>{product.price}</p>
+      <p>Sold by {product.merchant}</p>
 
-        {/* Info */}
-        <div className="product-info">
-          <h1>{product.title || product.name}</h1>
-          <p className="brand">{product.merchant || product.brand}</p>
-          <p className="price">{product.price}</p>
-
-          {/* CTA: click tracking */}
-          <a
-            href={`/api/click?id=${product.id}`}
-            className="btn"
-          >
-            View on {product.merchant || product.brand}
-          </a>
-
-          <div className="details">
-            <h3>Product Details</h3>
-            <p>{product.description || "Office-ready essential selected for fit, quality, and versatility."}</p>
-          </div>
-        </div>
-      </div>
-    </div>
+      <a
+        href={`/api/click?id=${product.id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn"
+      >
+        Buy Now
+      </a>
+    </main>
   );
 }
