@@ -18,18 +18,12 @@ export default function CategoryPage() {
 
   return (
     <>
-      <h1 style={{ textTransform: "capitalize", fontWeight: 500 }}>{slug}</h1>
-      <p style={{ margin: "1rem 0 2rem", color: "#555" }}>
+      <h1 className="category-title">{slug}</h1>
+      <p className="category-desc">
         Curated {slug} selected for modern office wear.
       </p>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-          gap: "1.5rem"
-        }}
-      >
+      <div className="grid">
         {products.map(product => (
           <ProductCard key={product.id} product={product} />
         ))}

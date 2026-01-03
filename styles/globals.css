@@ -1,4 +1,6 @@
-/* --- Reset / base --- */
+/* =======================
+   Reset / base
+======================= */
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -12,9 +14,12 @@ table, caption, tbody, tfoot, thead, tr, th, td {
   padding: 0;
   border: 0;
   vertical-align: baseline;
+  box-sizing: border-box;
 }
 
-/* --- Global fonts & base colors --- */
+/* =======================
+   Global fonts & base colors
+======================= */
 html {
   font-size: 16px;
 }
@@ -63,9 +68,142 @@ button:hover, .btn:hover {
   color: #000;
 }
 
-/* Layout helper */
+/* =======================
+   Container helper
+======================= */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
+}
+
+/* =======================
+   Hero section
+======================= */
+.hero {
+  margin-bottom: 4rem;
+}
+
+.hero h1 {
+  font-size: 2rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  max-width: 600px;
+  color: #555;
+}
+
+/* =======================
+   Grid
+======================= */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.5rem;
+}
+
+/* =======================
+   Product Card
+======================= */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-image {
+  background: #f6f6f6;
+  padding: 1rem;
+}
+
+.card-image img {
+  width: 100%;
+  object-fit: cover;
+}
+
+.price {
+  font-weight: 600;
+}
+
+.brand {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* =======================
+   Category Page
+======================= */
+.category-title {
+  text-transform: capitalize;
+  font-weight: 500;
+}
+
+.category-desc {
+  margin: 1rem 0 2rem;
+  color: #555;
+}
+
+/* =======================
+   Product Page
+======================= */
+.product-page {
+  margin-top: 2rem;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+}
+
+.product-image {
+  background: #f6f6f6;
+  padding: 2rem;
+}
+
+.product-image img {
+  width: 100%;
+  object-fit: cover;
+}
+
+.product-info h1 {
+  font-size: 2rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.product-info .brand {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.product-info .price {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.details h3 {
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.details p {
+  color: #555;
+}
+
+/* =======================
+   Responsive adjustments
+======================= */
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 0.95rem; }
 }
