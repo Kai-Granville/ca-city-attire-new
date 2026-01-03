@@ -1,26 +1,25 @@
 import { supabase } from "../../lib/supabase";
 
-// ===== Placeholder function for future AWIN fetch =====
-async function fetchAwinProducts() {
-  // TODO: replace this with real AWIN API call
-  // Return an array of products like this:
-  /*
-  [
+// Mock fetch (replace with AWIN later)
+async function fetchAwinProductsByCategory(category) {
+  console.log(`Fetching AWIN products for category "${category}" (mock)`);
+
+  // Return mock products
+  return [
     {
-      id: "sku_100",
-      name: "AWIN Product Name",
-      price: "£59.99",
-      category: "Shirts",
-      image_url: "https://awin.example.com/image.jpg",
-      merchant: "Brand Name",
-      affiliate_url: "https://awin.example.com/product-link"
-    },
-    ...
-  ]
-  */
-  console.log("Fetching AWIN products (placeholder)");
-  return [];
+      id: `sku_mock_${category}_01`,
+      name: `${category} Mock Product`,
+      price: "£49.99",
+      category,
+      image_url: "https://via.placeholder.com/400x400",
+      merchant: "Brand Mock",
+      affiliate_url: "#"
+    }
+  ];
 }
+
+// Auto-refresh threshold in milliseconds (24 hours)
+const REFRESH_THRESHOLD = 24 * 60 * 60 * 1000;
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -30,50 +29,64 @@ export default async function handler(req, res) {
   const { id, category, refresh } = req.query;
 
   try {
-    // ===== 1. Optional cache refresh =====
-    if (refresh === "true") {
-      console.log("Cache refresh requested");
+    // ===== 1. Check for stale products =====
+    if (refresh === "true" || category) {
+      const { data: productsInCategory, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("category", category || "")
+        .order("id", { ascending: false });
 
-      // Fetch AWIN products (currently placeholder)
-      const awinProducts = await fetchAwinProducts();
+      if (error) console.error("Supabase error fetching category:", error);
 
-      // Upsert products into Supabase
-      for (const product of awinProducts) {
-        const { error } = await supabase
-          .from("products")
-          .upsert({
-            id: product.id,
-            title: product.name,
-            price: product.price,
-            category: product.category,
-            image: product.image_url,
-            merchant: product.merchant,
-            affiliate_link: product.affiliate_url,
-            last_updated: new Date().toISOString()
-          }, { onConflict: "id" }); // update existing products if ID matches
+      const now = new Date();
 
-        if (error) console.error("Upsert error:", error);
+      // Check which products are stale
+      const staleProducts = (productsInCategory || []).filter(p => {
+        if (!p.last_updated) return true;
+        return now - new Date(p.last_updated) > REFRESH_THRESHOLD;
+      });
+
+      if (staleProducts.length > 0) {
+        console.log(`Refreshing ${staleProducts.length} stale product(s)`);
+
+        // Fetch mock AWIN products (replace with real API later)
+        const awinProducts = await fetchAwinProductsByCategory(category || "General");
+
+        for (const product of awinProducts) {
+          const { error: upsertError } = await supabase
+            .from("products")
+            .upsert({
+              id: product.id,
+              title: product.name,
+              price: product.price,
+              category: product.category,
+              image: product.image_url,
+              merchant: product.merchant,
+              affiliate_link: product.affiliate_url,
+              last_updated: now.toISOString()
+            }, { onConflict: "id" });
+
+          if (upsertError) console.error("Upsert error:", upsertError);
+        }
       }
     }
 
-    // ===== 2. Build query =====
+    // ===== 2. Build query for frontend =====
     let query = supabase.from("products").select("*").order("id", { ascending: false });
-
     if (id) query = query.eq("id", id).single();
     if (category) query = query.eq("category", category);
 
-    // ===== 3. Fetch data =====
     const { data, error } = await query;
     if (error) return res.status(500).json({ error: error.message });
 
-    // ===== 4. Handle missing data =====
     if (id && !data) return res.status(404).json({ error: "Product not found" });
     if (!id && !data) return res.status(200).json([]);
 
-    // ===== 5. Return products =====
     res.status(200).json(data);
+
   } catch (err) {
     console.error("Unexpected error:", err);
-    return res.status(500).json({ error: "An unexpected error occurred" });
+    res.status(500).json({ error: "An unexpected error occurred" });
   }
 }
