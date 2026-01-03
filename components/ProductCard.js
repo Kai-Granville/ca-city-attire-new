@@ -5,7 +5,7 @@ export default function ProductCard({ product }) {
     <div className="card">
       <div style={{ position: "relative" }}>
         <img src={product.image} alt={product.title} loading="lazy" />
-        {product.clicks >= 5 && (   /* Featured threshold */
+        {product.clicks >= 5 && (
           <span className="badge">Featured</span>
         )}
       </div>
@@ -16,8 +16,10 @@ export default function ProductCard({ product }) {
         Sold by {product.merchant}
       </p>
 
-      <Link href={`/products/${product.id}`}>
-        <a className="btn">View details</a>
+      <Link href={`/api/click?id=${product.id}`}>
+        <a className="btn" target="_blank" rel="noopener noreferrer">
+          View on merchant
+        </a>
       </Link>
     </div>
   );

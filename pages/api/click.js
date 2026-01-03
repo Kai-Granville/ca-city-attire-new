@@ -1,39 +1,34 @@
 import { supabase } from "../../lib/supabase";
 
 export default async function handler(req, res) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method Not Allowed" });
-  }
-
   const { id } = req.query;
 
   if (!id) {
-    return res.status(400).json({ error: "Missing product ID" });
+    return res.status(400).json({ error: "Missing product id" });
+  }
+
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    // Fetch the product to get the affiliate link
-    const { data: product, error } = await supabase
+    // Increment clicks by 1 atomically
+    const { data, error } = await supabase
       .from("products")
-      .select("*")
+      .update({ clicks: supabase.raw('clicks + 1') })
       .eq("id", id)
+      .select()
       .single();
 
-    if (error || !product) {
-      return res.status(404).json({ error: "Product not found" });
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ error: error.message });
     }
 
-    // Optional: log the click by updating a counter
-    await supabase
-      .from("products")
-      .update({ clicks: (product.clicks || 0) + 1 })
-      .eq("id", id);
-
-    // Redirect to the affiliate URL
-    res.writeHead(302, { Location: product.affiliate_link || "#" });
-    res.end();
+    // Redirect to affiliate link
+    return res.redirect(data.affiliate_link);
   } catch (err) {
-    console.error("Click tracking error:", err);
-    return res.status(500).json({ error: "Server error" });
+    console.error(err);
+    return res.status(500).json({ error: "Unexpected error" });
   }
 }

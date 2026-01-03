@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import ProductCard from "../components/ProductCard";
-import Link from "next/link";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    // Fetch top 20 products
+    // Fetch top 20 products by clicks
     fetch("/api/products?limit=20")
       .then(res => res.json())
       .then(data => setProducts(data));
@@ -31,21 +30,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
-      {/* Optional bottom category section */}
-      {/* Can remove if navbar handles navigation */}
-      {/* 
-      <section className="categories">
-        <h2>Shop by Category</h2>
-        <div className="category-list">
-          {["Shirts","Suits","Pants","Shoes","Accessories"].map(cat => (
-            <Link key={cat} href={`/category/${cat.toLowerCase()}`}>
-              <a className="category-btn">{cat}</a>
-            </Link>
-          ))}
-        </div>
-      </section>
-      */}
     </main>
   );
 }
