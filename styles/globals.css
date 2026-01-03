@@ -281,3 +281,16 @@ a {
   gap: 1.5rem;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
+
+/* Add spacing between major sections */
+.categories {
+  margin-bottom: 3rem; /* space below categories */
+}
+
+.product-grid-section {
+  margin-top: 2rem; /* optional, extra space above products */
+}
+
+main section {
+  margin-bottom: 3rem;
+}
