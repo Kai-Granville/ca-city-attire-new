@@ -294,3 +294,12 @@ a {
 main section {
   margin-bottom: 3rem;
 }
+
+.hero p {
+  font-size: 1.2rem;
+  color: #555;
+  max-width: 700px; /* limit line length for readability */
+  margin: 0 auto;   /* center horizontally */
+  line-height: 1.4; /* nicer spacing if wrapped */
+  text-align: center;
+}
