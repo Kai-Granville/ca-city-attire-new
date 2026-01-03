@@ -6,20 +6,20 @@ export default function ProductCard({ product }) {
       {/* Image */}
       <div className="card-image">
         <img
-          src={product.image_url || product.image}
-          alt={product.name || product.title}
+          src={product.image || product.image_url}
+          alt={product.title || product.name}
           loading="lazy"
         />
       </div>
 
       {/* Info */}
-      <h3>{product.name || product.title}</h3>
+      <h3>{product.title || product.name}</h3>
       <p className="price">{product.price}</p>
-      <p className="brand">{product.brand || product.merchant}</p>
+      <p className="brand">{product.merchant || product.brand}</p>
 
-      {/* CTA */}
-      <Link href={`/products/${product.id}`}>
-        <a className="btn">View Details</a>
+      {/* CTA: click tracking */}
+      <Link href={`/api/click?id=${product.id}`}>
+        <a className="btn">View on {product.merchant || product.brand}</a>
       </Link>
     </div>
   );

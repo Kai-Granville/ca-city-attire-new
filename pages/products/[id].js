@@ -4,12 +4,10 @@ import { useEffect, useState } from "react";
 export default function ProductPage() {
   const router = useRouter();
   const { id } = router.query;
-
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
     if (!id) return;
-
     fetch(`/api/products?id=${id}`)
       .then(res => res.json())
       .then(data => setProduct(data));
@@ -22,22 +20,21 @@ export default function ProductPage() {
       <div className="product-grid">
         {/* Image */}
         <div className="product-image">
-          <img src={product.image_url} alt={product.name} />
+          <img src={product.image || product.image_url} alt={product.title || product.name} />
         </div>
 
         {/* Info */}
         <div className="product-info">
-          <h1>{product.name}</h1>
-          <p className="brand">{product.brand}</p>
+          <h1>{product.title || product.name}</h1>
+          <p className="brand">{product.merchant || product.brand}</p>
           <p className="price">{product.price}</p>
 
+          {/* CTA: click tracking */}
           <a
-            href={product.affiliate_url || "#"}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={`/api/click?id=${product.id}`}
             className="btn"
           >
-            View on {product.merchant || "Merchant"}
+            View on {product.merchant || product.brand}
           </a>
 
           <div className="details">
