@@ -11,11 +11,10 @@ export default function Home() {
   }, []);
 
   return (
-    <main style={{ padding: "3rem 2rem", maxWidth: "1200px", margin: "0 auto" }}>
-      
+    <>
       {/* Hero */}
       <section style={{ marginBottom: "4rem" }}>
-        <h1 style={{ fontSize: "2.5rem", fontWeight: 500 }}>
+        <h1 style={{ fontSize: "2rem", fontWeight: 500 }}>
           Modern Workwear for the City Professional
         </h1>
         <p style={{ maxWidth: "600px", marginTop: "1rem", color: "#555" }}>
@@ -23,17 +22,14 @@ export default function Home() {
         </p>
       </section>
 
-      {/* Product grid */}
+      {/* Editor's Picks */}
       <section>
-        <h2 style={{ marginBottom: "1.5rem", fontWeight: 500 }}>
-          Editor’s Picks
-        </h2>
-
+        <h2 style={{ marginBottom: "1.5rem", fontWeight: 500 }}>Editor's Picks</h2>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-            gap: "2rem"
+            gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+            gap: "1.5rem"
           }}
         >
           {products.map(product => (
@@ -41,7 +37,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
-    </main>
+    </>
   );
 }

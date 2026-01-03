@@ -16,9 +16,7 @@ export default function Layout({ children }) {
           alignItems: "center"
         }}>
           <Link href="/">
-            <a style={{ fontSize: "1.2rem", fontWeight: 600 }}>
-              City Attire
-            </a>
+            <a style={{ fontSize: "1.2rem", fontWeight: 600 }}>City Attire</a>
           </Link>
 
           <div style={{ display: "flex", gap: "1.5rem" }}>
@@ -31,24 +29,24 @@ export default function Layout({ children }) {
       </header>
 
       {/* Page content */}
-      {children}
+      <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem 1rem" }}>
+        {children}
+      </main>
 
       {/* Footer */}
       <footer style={{
-        marginTop: "5rem",
+        marginTop: "4rem",
         borderTop: "1px solid #eee",
-        padding: "3rem 2rem",
-        fontSize: "0.9rem",
+        padding: "2rem 1rem",
+        fontSize: "0.85rem",
         color: "#666"
       }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <p>© {new Date().getFullYear()} City Attire</p>
-
           <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
             <Link href="/about"><a>About</a></Link>
             <Link href="/privacy-policy"><a>Privacy Policy</a></Link>
           </div>
-
           <p style={{ marginTop: "1.5rem", maxWidth: "600px" }}>
             City Attire may earn a commission from qualifying purchases made via affiliate links.
           </p>

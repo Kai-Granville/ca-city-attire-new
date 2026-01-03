@@ -17,11 +17,8 @@ export default function CategoryPage() {
   }, [slug]);
 
   return (
-    <main style={{ padding: "3rem 2rem", maxWidth: "1200px", margin: "0 auto" }}>
-      <h1 style={{ textTransform: "capitalize", fontWeight: 500 }}>
-        {slug}
-      </h1>
-
+    <>
+      <h1 style={{ textTransform: "capitalize", fontWeight: 500 }}>{slug}</h1>
       <p style={{ margin: "1rem 0 2rem", color: "#555" }}>
         Curated {slug} selected for modern office wear.
       </p>
@@ -29,14 +26,14 @@ export default function CategoryPage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-          gap: "2rem"
+          gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+          gap: "1.5rem"
         }}
       >
         {products.map(product => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
-    </main>
+    </>
   );
 }
