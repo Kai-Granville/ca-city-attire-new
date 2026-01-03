@@ -22,10 +22,10 @@ export default function Layout({ children }) {
           </Link>
 
           <div style={{ display: "flex", gap: "1.5rem" }}>
-            <Link href="#"><a>Suits</a></Link>
-            <Link href="#"><a>Shirts</a></Link>
-            <Link href="#"><a>Trousers</a></Link>
-            <Link href="#"><a>Shoes</a></Link>
+            <Link href="/category/suits"><a>Suits</a></Link>
+            <Link href="/category/shirts"><a>Shirts</a></Link>
+            <Link href="/category/trousers"><a>Trousers</a></Link>
+            <Link href="/category/shoes"><a>Shoes</a></Link>
           </div>
         </nav>
       </header>
