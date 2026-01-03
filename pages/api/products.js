@@ -1,24 +1,17 @@
 import { supabase } from "../../lib/supabase";
 
-// Mock fetch (replace with AWIN later)
-async function fetchAwinProductsByCategory(category) {
-  console.log(`Fetching AWIN products for category "${category}" (mock)`);
+// Mock fetch placeholder (replace with AWIN later)
+const mockAwinProducts = [
+  // example placeholder; currently no real AWIN fetch
+];
 
-  // Return mock products
-  return [
-    {
-      id: `sku_mock_${category}_01`,
-      name: `${category} Mock Product`,
-      price: "£49.99",
-      category,
-      image_url: "https://via.placeholder.com/400x400",
-      merchant: "Brand Mock",
-      affiliate_url: "#"
-    }
-  ];
+async function fetchAwinProductsByCategory(category) {
+  console.log(`Mock AWIN fetch for category: ${category}`);
+  // Currently returns empty array; later swap with real AWIN API
+  return [];
 }
 
-// Auto-refresh threshold in milliseconds (24 hours)
+// Auto-refresh threshold (ms) — 24 hours
 const REFRESH_THRESHOLD = 24 * 60 * 60 * 1000;
 
 export default async function handler(req, res) {
@@ -29,60 +22,53 @@ export default async function handler(req, res) {
   const { id, category, refresh } = req.query;
 
   try {
-    // ===== 1. Check for stale products =====
-    if (refresh === "true" || category) {
-      const { data: productsInCategory, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("category", category || "")
-        .order("id", { ascending: false });
+    // ===== 1. Optional cache refresh =====
+    if (refresh === "true") {
+      console.log("Cache refresh requested");
 
-      if (error) console.error("Supabase error fetching category:", error);
+      // Fetch mock AWIN products (replace with real AWIN API later)
+      const awinProducts = await fetchAwinProductsByCategory(category || null);
 
       const now = new Date();
 
-      // Check which products are stale
-      const staleProducts = (productsInCategory || []).filter(p => {
-        if (!p.last_updated) return true;
-        return now - new Date(p.last_updated) > REFRESH_THRESHOLD;
-      });
+      for (const product of awinProducts) {
+        const { error } = await supabase
+          .from("products")
+          .upsert({
+            id: product.id,
+            title: product.name,
+            price: product.price,
+            category: product.category,
+            image: product.image_url,
+            merchant: product.merchant,
+            affiliate_link: product.affiliate_url,
+            last_updated: now.toISOString()
+          }, { onConflict: "id" });
 
-      if (staleProducts.length > 0) {
-        console.log(`Refreshing ${staleProducts.length} stale product(s)`);
-
-        // Fetch mock AWIN products (replace with real API later)
-        const awinProducts = await fetchAwinProductsByCategory(category || "General");
-
-        for (const product of awinProducts) {
-          const { error: upsertError } = await supabase
-            .from("products")
-            .upsert({
-              id: product.id,
-              title: product.name,
-              price: product.price,
-              category: product.category,
-              image: product.image_url,
-              merchant: product.merchant,
-              affiliate_link: product.affiliate_url,
-              last_updated: now.toISOString()
-            }, { onConflict: "id" });
-
-          if (upsertError) console.error("Upsert error:", upsertError);
-        }
+        if (error) console.error("Upsert error:", error);
       }
     }
 
-    // ===== 2. Build query for frontend =====
+    // ===== 2. Build query =====
     let query = supabase.from("products").select("*").order("id", { ascending: false });
-    if (id) query = query.eq("id", id).single();
-    if (category) query = query.eq("category", category);
 
+    if (id) {
+      query = query.eq("id", id).single(); // single product
+    }
+
+    if (category) {
+      // Case-insensitive category match
+      query = query.ilike("category", category);
+    }
+
+    // ===== 3. Fetch data =====
     const { data, error } = await query;
-    if (error) return res.status(500).json({ error: error.message });
 
+    if (error) return res.status(500).json({ error: error.message });
     if (id && !data) return res.status(404).json({ error: "Product not found" });
     if (!id && !data) return res.status(200).json([]);
 
+    // ===== 4. Return products =====
     res.status(200).json(data);
 
   } catch (err) {
