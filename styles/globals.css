@@ -303,3 +303,43 @@ main section {
   line-height: 1.4; /* nicer spacing if wrapped */
   text-align: center;
 }
+
+/* ===== NAVBAR ===== */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.navbar .logo a {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #333;
+  border-radius: 8px;
+  font-weight: bold;
+  color: #333;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  background-color: #333;
+  color: #fff;
+}
+
