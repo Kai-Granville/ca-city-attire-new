@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../../lib/supabase";
+import Head from "next/head";
 
 export default function ProductPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function ProductPage() {
 
     const fetchProduct = async () => {
       try {
+        // Fetch product
         const { data, error } = await supabase
           .from("products")
           .select("*")
@@ -48,6 +50,36 @@ export default function ProductPage() {
   return (
     <main className="container">
       <section className="product-detail">
+        {/* SEO / JSON-LD */}
+        <Head>
+          <title>{product.title} | City Attire</title>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org/",
+                "@type": "Product",
+                "name": product.title,
+                "image": [product.image],
+                "description": `${product.category ? product.category + " " : ""}${product.color ? product.color + " " : ""}work clothing by ${product.merchant}`,
+                "sku": product.id,
+                "brand": {
+                  "@type": "Brand",
+                  "name": product.merchant
+                },
+                "offers": {
+                  "@type": "Offer",
+                  "url": product.affiliate_link || "",
+                  "priceCurrency": "GBP",
+                  "price": Number(product.price).toFixed(2),
+                  "availability": "https://schema.org/InStock",
+                  "itemCondition": "https://schema.org/NewCondition"
+                }
+              })
+            }}
+          />
+        </Head>
+
         <div className="product-detail-grid">
           {/* Product Image */}
           <div className="product-image">
@@ -64,7 +96,7 @@ export default function ProductPage() {
 
             {/* Buy Now button */}
             <a
-              href={product.affiliate_link}
+              href={product.affiliate_link || "#"}
               target="_blank"
               rel="noopener noreferrer"
               className="buy-now-btn"
