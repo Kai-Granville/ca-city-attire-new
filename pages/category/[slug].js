@@ -66,12 +66,16 @@ export default function CategoryPage() {
 
   return (
     <main className="container">
-      <section className="hero">
-        <h1>{title}</h1>
+      {/* Category Hero */}
+      <section className="hero" style={{ background: "#f4f4f4", borderRadius: "20px", padding: "3rem 2rem", marginBottom: "2rem" }}>
+        <h1 style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>{title}</h1>
+        <p style={{ fontSize: "1.1rem", color: "#555", maxWidth: "700px", margin: "0 auto" }}>
+          Browse our collection of premium work clothes
+        </p>
       </section>
 
       {/* Filters */}
-      <div className="filters">
+      <div className="filters" style={{ marginBottom: "2rem" }}>
         <input
           type="text"
           placeholder="Search products..."
