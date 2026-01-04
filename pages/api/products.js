@@ -1,24 +1,51 @@
 import { supabase } from "../../lib/supabase";
 
 export default async function handler(req, res) {
-  if (req.method !== "GET") return res.status(405).json({ error: "Method Not Allowed" });
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method Not Allowed" });
+  }
 
-  const { id, category, limit } = req.query;
+  const { id, category, limit = 20, page = 1 } = req.query;
 
-  let query = supabase.from("products").select("*").order("clicks", { ascending: false });
-
-  if (id) query = query.eq("id", id).single();
-  if (category) query = query.ilike("category", category);
-  if (limit) query = query.limit(parseInt(limit));
+  const pageNum = parseInt(page);
+  const limitNum = parseInt(limit);
+  const from = (pageNum - 1) * limitNum;
+  const to = from + limitNum - 1;
 
   try {
-    const { data, error } = await query;
-    if (error) return res.status(500).json({ error: error.message });
-    if (!data && id) return res.status(404).json({ error: "Product not found" });
+    let query = supabase
+      .from("products")
+      .select("*", { count: "exact" })
+      .order("clicks", { ascending: false })
+      .range(from, to);
 
-    res.status(200).json(data);
+    if (id) {
+      query = supabase
+        .from("products")
+        .select("*")
+        .eq("id", id)
+        .single();
+    }
+
+    if (category) {
+      query = query.ilike("category", category);
+    }
+
+    const { data, error, count } = await query;
+
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.status(200).json({
+      products: data,
+      total: count,
+      page: pageNum,
+      totalPages: Math.ceil(count / limitNum),
+    });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: "Unexpected error" });
+    res.status(500).json({ error: "Unexpected error" });
   }
 }
