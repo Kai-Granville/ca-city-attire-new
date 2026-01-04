@@ -10,18 +10,18 @@ export default function CategoryPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // Dynamic filter options
+  // Dynamic filter options (based on currently available products)
   const [allColors, setAllColors] = useState([]);
   const [allMerchants, setAllMerchants] = useState([]);
   const [allTypes, setAllTypes] = useState([]);
 
-  // Filters
+  // Selected filters
   const [sort, setSort] = useState("popular");
   const [search, setSearch] = useState("");
   const [color, setColor] = useState("");
   const [priceRange, setPriceRange] = useState("");
   const [merchant, setMerchant] = useState("");
-  const [type, setType] = useState(slug);
+  const [type, setType] = useState(slug || "all");
 
   const getPriceFilter = range => {
     if (!range) return {};
@@ -29,22 +29,7 @@ export default function CategoryPage() {
     return { minPrice: min, maxPrice: max || 100000 };
   };
 
-  // Fetch dynamic filter options
-  useEffect(() => {
-    fetch("/api/products")
-      .then(res => res.json())
-      .then(data => {
-        const colors = Array.from(new Set(data.products.map(p => p.color).filter(Boolean)));
-        const merchants = Array.from(new Set(data.products.map(p => p.merchant).filter(Boolean)));
-        const types = Array.from(new Set(data.products.map(p => p.category).filter(Boolean)));
-
-        setAllColors(colors);
-        setAllMerchants(merchants);
-        setAllTypes(types);
-      });
-  }, []);
-
-  // Fetch filtered products
+  // Fetch filtered products and update filter options dynamically
   useEffect(() => {
     if (!slug) return;
 
@@ -59,14 +44,24 @@ export default function CategoryPage() {
       sort,
       q: search || router.query.q || "",
       page,
-      limit: 20
+      limit: 20,
     });
 
+    // Fetch products
     fetch(`/api/products?${queryParams.toString()}`)
       .then(res => res.json())
       .then(data => {
         setProducts(data.products);
         setTotalPages(data.totalPages || 1);
+
+        // Dynamically update filter options based on current selection
+        const colors = Array.from(new Set(data.products.map(p => p.color).filter(Boolean)));
+        const merchants = Array.from(new Set(data.products.map(p => p.merchant).filter(Boolean)));
+        const types = Array.from(new Set(data.products.map(p => p.category).filter(Boolean)));
+
+        setAllColors(colors);
+        setAllMerchants(merchants);
+        setAllTypes(types);
       });
   }, [slug, type, page, sort, search, color, priceRange, merchant, router.query.q]);
 
