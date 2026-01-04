@@ -5,16 +5,20 @@ export default function Home() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    fetch("/api/products?limit=20")
+    fetch("/api/products?limit=20&page=1")
       .then(res => res.json())
-      .then(data => setProducts(data));
+      .then(data => {
+        setProducts(data.products); // ✅ FIX
+      });
   }, []);
 
   return (
     <main className="container">
       <section className="hero">
         <h1>Office Attire for Professionals</h1>
-        <p>Discover premium work clothes for men — shirts, suits, pants, and accessories</p>
+        <p>
+          Discover premium work clothes for men — shirts, suits, pants, and accessories
+        </p>
       </section>
 
       <section className="product-grid-section">
