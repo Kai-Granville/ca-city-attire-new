@@ -15,8 +15,11 @@ export default function CategoryPage() {
   useEffect(() => {
     if (!slug) return;
 
+    // If slug = "all", do not filter by category
+    const categoryParam = slug === "all" ? "" : `category=${slug}&`;
+
     fetch(
-      `/api/products?category=${slug}&page=${page}&limit=20&sort=${sort}&q=${search}`
+      `/api/products?${categoryParam}page=${page}&limit=20&sort=${sort}&q=${encodeURIComponent(search)}`
     )
       .then(res => res.json())
       .then(data => {
@@ -27,15 +30,16 @@ export default function CategoryPage() {
 
   if (!slug) return null;
 
-  const title = slug.charAt(0).toUpperCase() + slug.slice(1);
+  const title = slug === "all" ? "All Products" : slug.charAt(0).toUpperCase() + slug.slice(1);
 
   return (
     <main className="container">
+      {/* Hero / Title */}
       <section className="hero">
         <h1>{title}</h1>
       </section>
 
-      {/* Search + Sort */}
+      {/* Filters: search + sort */}
       <div className="filters">
         <input
           type="text"
@@ -43,7 +47,7 @@ export default function CategoryPage() {
           value={search}
           onChange={e => {
             setSearch(e.target.value);
-            setPage(1);
+            setPage(1); // Reset to first page on search
           }}
         />
 
@@ -51,7 +55,7 @@ export default function CategoryPage() {
           value={sort}
           onChange={e => {
             setSort(e.target.value);
-            setPage(1);
+            setPage(1); // Reset to first page on sort
           }}
         >
           <option value="popular">Most Popular</option>
@@ -61,6 +65,7 @@ export default function CategoryPage() {
         </select>
       </div>
 
+      {/* Product Grid */}
       <section className="product-grid-section">
         <div className="product-grid">
           {products.map(product => (
