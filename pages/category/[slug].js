@@ -10,6 +10,11 @@ export default function CategoryPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // Dynamic filter options
+  const [allColors, setAllColors] = useState([]);
+  const [allMerchants, setAllMerchants] = useState([]);
+  const [allTypes, setAllTypes] = useState([]);
+
   // Filters
   const [sort, setSort] = useState("popular");
   const [search, setSearch] = useState("");
@@ -24,10 +29,25 @@ export default function CategoryPage() {
     return { minPrice: min, maxPrice: max || 100000 };
   };
 
+  // Fetch dynamic filter options
+  useEffect(() => {
+    fetch("/api/products")
+      .then(res => res.json())
+      .then(data => {
+        const colors = Array.from(new Set(data.products.map(p => p.color).filter(Boolean)));
+        const merchants = Array.from(new Set(data.products.map(p => p.merchant).filter(Boolean)));
+        const types = Array.from(new Set(data.products.map(p => p.category).filter(Boolean)));
+
+        setAllColors(colors);
+        setAllMerchants(merchants);
+        setAllTypes(types);
+      });
+  }, []);
+
+  // Fetch filtered products
   useEffect(() => {
     if (!slug) return;
 
-    const categoryParam = type === "all" ? "" : `category=${type}&`;
     const { minPrice, maxPrice } = getPriceFilter(priceRange);
 
     const queryParams = new URLSearchParams({
@@ -62,6 +82,7 @@ export default function CategoryPage() {
 
       {/* Filters */}
       <div className="filters">
+        {/* Search */}
         <input
           type="text"
           placeholder="Search products..."
@@ -69,6 +90,7 @@ export default function CategoryPage() {
           onChange={e => { setSearch(e.target.value); setPage(1); }}
         />
 
+        {/* Sort */}
         <select value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}>
           <option value="popular">Most Popular</option>
           <option value="new">Newest</option>
@@ -76,14 +98,19 @@ export default function CategoryPage() {
           <option value="price_desc">Price: High → Low</option>
         </select>
 
-        <select value={color} onChange={e => { setColor(e.target.value); setPage(1); }}>
-          <option value="">All Colours</option>
-          <option value="Black">Black</option>
-          <option value="Blue">Blue</option>
-          <option value="White">White</option>
-          <option value="Grey">Grey</option>
+        {/* Type / Category */}
+        <select value={type} onChange={e => { setType(e.target.value); setPage(1); }}>
+          <option value="all">All Types</option>
+          {allTypes.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
 
+        {/* Colour */}
+        <select value={color} onChange={e => { setColor(e.target.value); setPage(1); }}>
+          <option value="">All Colours</option>
+          {allColors.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+
+        {/* Price */}
         <select value={priceRange} onChange={e => { setPriceRange(e.target.value); setPage(1); }}>
           <option value="">All Prices</option>
           <option value="0-50">£0–50</option>
@@ -91,11 +118,10 @@ export default function CategoryPage() {
           <option value="100-1000">£100+</option>
         </select>
 
+        {/* Merchant */}
         <select value={merchant} onChange={e => { setMerchant(e.target.value); setPage(1); }}>
           <option value="">All Merchants</option>
-          <option value="Example Store">Example Store</option>
-          <option value="Tech Shop">Tech Shop</option>
-          <option value="Audio Zone">Audio Zone</option>
+          {allMerchants.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
       </div>
 

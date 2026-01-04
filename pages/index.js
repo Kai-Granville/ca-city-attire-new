@@ -12,11 +12,13 @@ export default function Home() {
 
   return (
     <main className="container">
-      <section className="hero">
+      {/* Hero Section */}
+      <section className="hero hero-home">
         <h1>City Attire</h1>
-        <p>Premium workwear for men — shirts, suits, trousers, and accessories</p>
+        <p>Discover premium work clothes for men — shirts, suits, trousers, and accessories</p>
       </section>
 
+      {/* Top Picks */}
       <section className="product-grid-section">
         <h2>Top Picks</h2>
         <div className="product-grid">
