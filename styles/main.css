@@ -267,3 +267,36 @@ body {
     justify-content: center;
   }
 }
+
+/* ====== HEADER / LOGO ====== */
+.site-header a.logo {
+  color: #000; /* black logo */
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* ====== CATEGORY NAV ====== */
+.category-nav a {
+  color: #000;             /* black text */
+  background: #f5f5f5;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.category-nav a:hover {
+  color: #fff;
+  background: #000;
+}
+
+a {
+  color: inherit;   /* inherit from parent */
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
