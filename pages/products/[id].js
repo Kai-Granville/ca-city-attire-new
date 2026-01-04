@@ -16,7 +16,6 @@ export default function ProductPage() {
 
     const fetchProduct = async () => {
       try {
-        // Fetch product
         const { data, error } = await supabase
           .from("products")
           .select("*")
@@ -28,7 +27,6 @@ export default function ProductPage() {
         setProduct(data);
         setLoading(false);
 
-        // Increment click counter
         await supabase
           .from("products")
           .update({ clicks: (data.clicks || 0) + 1 })
@@ -50,7 +48,6 @@ export default function ProductPage() {
   return (
     <main className="container">
       <section className="product-detail">
-        {/* SEO / JSON-LD */}
         <Head>
           <title>{product.title} | City Attire</title>
           <script
@@ -63,10 +60,7 @@ export default function ProductPage() {
                 "image": [product.image],
                 "description": `${product.category ? product.category + " " : ""}${product.color ? product.color + " " : ""}work clothing by ${product.merchant}`,
                 "sku": product.id,
-                "brand": {
-                  "@type": "Brand",
-                  "name": product.merchant
-                },
+                "brand": { "@type": "Brand", "name": product.merchant },
                 "offers": {
                   "@type": "Offer",
                   "url": product.affiliate_link || "",
@@ -81,12 +75,9 @@ export default function ProductPage() {
         </Head>
 
         <div className="product-detail-grid">
-          {/* Product Image */}
           <div className="product-image">
             <img src={product.image} alt={product.title} />
           </div>
-
-          {/* Product Info */}
           <div className="product-info">
             <h1>{product.title}</h1>
             <p className="price">£{Number(product.price).toFixed(2)}</p>
@@ -94,7 +85,6 @@ export default function ProductPage() {
             {product.color && <p><strong>Color:</strong> {product.color}</p>}
             {product.category && <p><strong>Category:</strong> {product.category}</p>}
 
-            {/* Buy Now button */}
             <a
               href={product.affiliate_link || "#"}
               target="_blank"
