@@ -8,7 +8,7 @@ export default function ProductCard({ product }) {
       </div>
 
       <h3>{product.title}</h3>
-      <p className="price">£{product.price}</p>
+      <p className="price">£{Number(product.price).toFixed(2)}</p>
 
       <Link href={`/products/${product.id}`} className="btn">
         View details
