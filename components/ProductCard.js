@@ -4,11 +4,7 @@ export default function ProductCard({ product }) {
   return (
     <div className="product-card">
       <div className="product-image">
-        <img
-          src={product.image}
-          alt={product.title}
-          loading="lazy"
-        />
+        <img src={product.image} alt={product.title} loading="lazy" />
       </div>
 
       <h3>{product.title}</h3>
