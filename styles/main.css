@@ -1,5 +1,20 @@
+/* ===========================
+   GLOBAL LINK RESET
+=========================== */
+a {
+  color: inherit;        /* inherit parent text color */
+  text-decoration: none; /* remove underline */
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+/* ===========================
+   VARIABLES / COLORS
+=========================== */
 :root {
-  --accent-color: #C5A880;
+  --accent-color: #C5A880; /* premium gold */
   --text-color: #222;
   --bg-color: #fff;
   --card-bg: #fff;
@@ -7,7 +22,9 @@
   --hover-text: #fff;
 }
 
-/* RESET & BASE */
+/* ===========================
+   RESET & BASE
+=========================== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -27,7 +44,9 @@ body {
   padding: 2rem;
 }
 
-/* HEADER */
+/* ===========================
+   HEADER
+=========================== */
 .site-header {
   display: flex;
   align-items: center;
@@ -40,8 +59,9 @@ body {
   z-index: 100;
 }
 
+/* Logo */
 .site-header a.logo {
-  color: var(--text-color);
+  color: var(--text-color); /* black */
   text-decoration: none;
   font-size: 1.5rem;
   font-weight: bold;
@@ -70,7 +90,9 @@ body {
   cursor: pointer;
 }
 
-/* HERO */
+/* ===========================
+   HERO
+=========================== */
 .hero {
   text-align: center;
   padding: 5rem 2rem;
@@ -104,7 +126,9 @@ body {
   margin: 0 auto 2rem;
 }
 
-/* CATEGORY NAV */
+/* ===========================
+   CATEGORY NAV
+=========================== */
 .category-nav {
   display: flex;
   flex-wrap: wrap;
@@ -112,8 +136,9 @@ body {
   margin-bottom: 1.5rem;
 }
 
+/* Category links */
 .category-nav a {
-  color: var(--text-color);
+  color: var(--text-color);      /* black */
   text-decoration: none;
   font-weight: 500;
   padding: 0.5rem 1rem;
@@ -123,11 +148,13 @@ body {
 }
 
 .category-nav a:hover {
-  color: var(--hover-text);
-  background: var(--accent-color);
+  color: var(--hover-text);      /* white */
+  background: var(--accent-color); /* gold */
 }
 
-/* FILTERS */
+/* ===========================
+   FILTERS
+=========================== */
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -145,14 +172,18 @@ body {
   min-width: 120px;
 }
 
-/* PRODUCT GRID */
+/* ===========================
+   PRODUCT GRID
+=========================== */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 2rem;
 }
 
-/* PRODUCT CARD */
+/* ===========================
+   PRODUCT CARD
+=========================== */
 .product-card {
   background: var(--card-bg);
   border-radius: 16px;
@@ -188,7 +219,9 @@ body {
   color: var(--text-color);
 }
 
-/* PRODUCT DETAIL */
+/* ===========================
+   PRODUCT DETAIL
+=========================== */
 .product-detail-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -235,7 +268,9 @@ body {
   color: #fff;
 }
 
-/* PAGINATION - optional fallback */
+/* ===========================
+   PAGINATION (fallback)
+=========================== */
 .pagination {
   display: flex;
   justify-content: center;
@@ -257,7 +292,9 @@ body {
   cursor: default;
 }
 
-/* RESPONSIVE */
+/* ===========================
+   RESPONSIVE
+=========================== */
 @media (max-width: 768px) {
   .filters {
     flex-direction: column;
