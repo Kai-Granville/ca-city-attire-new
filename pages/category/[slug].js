@@ -18,15 +18,18 @@ export default function CategoryPage() {
     // If slug = "all", do not filter by category
     const categoryParam = slug === "all" ? "" : `category=${slug}&`;
 
+    // Use either search state or URL query q
+    const qParam = search || router.query.q || "";
+
     fetch(
-      `/api/products?${categoryParam}page=${page}&limit=20&sort=${sort}&q=${encodeURIComponent(search)}`
+      `/api/products?${categoryParam}page=${page}&limit=20&sort=${sort}&q=${encodeURIComponent(qParam)}`
     )
       .then(res => res.json())
       .then(data => {
         setProducts(data.products);
         setTotalPages(data.totalPages);
       });
-  }, [slug, page, sort, search]);
+  }, [slug, page, sort, search, router.query.q]); // ✅ add router.query.q as dependency
 
   if (!slug) return null;
 
