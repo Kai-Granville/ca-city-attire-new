@@ -19,15 +19,12 @@ export default function Home() {
 
   return (
     <main className="container">
-      {/* Hero Section */}
-      <section className="hero" style={{ background: "#f4f4f4", borderRadius: "20px", padding: "5rem 2rem" }}>
-        <h1 style={{ fontSize: "3rem", marginBottom: "1rem" }}>City Attire</h1>
-        <p style={{ fontSize: "1.3rem", color: "#555", maxWidth: "700px", margin: "0 auto 2rem" }}>
-          Discover premium work clothes for men — shirts, suits, trousers, and accessories
-        </p>
+      {/* Hero */}
+      <section className="hero">
+        <h1>City Attire</h1>
+        <p>Discover premium work clothes for men — shirts, suits, trousers, and accessories</p>
 
-        {/* Search Bar */}
-        <form className="header-search" onSubmit={handleSearch} style={{ maxWidth: "600px", margin: "0 auto" }}>
+        <form className="header-search" onSubmit={handleSearch}>
           <input
             type="text"
             placeholder="Search products..."
@@ -39,11 +36,11 @@ export default function Home() {
       </section>
 
       {/* Top Picks */}
-      <section className="product-grid-section" style={{ marginTop: "3rem" }}>
+      <section style={{ marginTop: "3rem" }}>
         <h2 style={{ marginBottom: "1.5rem", fontSize: "1.8rem" }}>Top Picks</h2>
         <div className="product-grid">
-          {products.map(product => (
-            <ProductCard key={product.id} product={product} />
+          {products.map(p => (
+            <ProductCard key={p.id} product={p} />
           ))}
         </div>
       </section>

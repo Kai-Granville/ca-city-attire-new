@@ -27,9 +27,9 @@ export default function CategoryPage() {
     return { minPrice: min, maxPrice: max || 100000 };
   };
 
+  // Fetch products
   useEffect(() => {
     if (!slug) return;
-
     const { minPrice, maxPrice } = getPriceFilter(priceRange);
 
     const queryParams = new URLSearchParams({
@@ -47,7 +47,9 @@ export default function CategoryPage() {
     fetch(`/api/products?${queryParams.toString()}`)
       .then(res => res.json())
       .then(data => {
-        setProducts(data.products);
+        if (page === 1) setProducts(data.products);
+        else setProducts(prev => [...prev, ...data.products]);
+
         setTotalPages(data.totalPages || 1);
 
         const colors = Array.from(new Set(data.products.map(p => p.color).filter(Boolean)));
@@ -60,74 +62,66 @@ export default function CategoryPage() {
       });
   }, [slug, type, page, sort, search, color, priceRange, merchant, router.query.q]);
 
+  // Infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 && page < totalPages) {
+        setPage(prev => prev + 1);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [page, totalPages]);
+
   if (!slug) return null;
 
   const title = type === "all" ? "All Products" : type.charAt(0).toUpperCase() + type.slice(1);
 
   return (
     <main className="container">
-      {/* Category Hero */}
-      <section className="hero" style={{ background: "#f4f4f4", borderRadius: "20px", padding: "3rem 2rem", marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>{title}</h1>
-        <p style={{ fontSize: "1.1rem", color: "#555", maxWidth: "700px", margin: "0 auto" }}>
-          Browse our collection of premium work clothes
-        </p>
+      <section className="hero" style={{ padding: "3rem 2rem", marginBottom: "2rem" }}>
+        <h1>{title}</h1>
+        <p>Browse our collection of premium work clothes</p>
       </section>
 
       {/* Filters */}
-      <div className="filters" style={{ marginBottom: "2rem" }}>
+      <div className="filters">
         <input
           type="text"
           placeholder="Search products..."
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1); }}
         />
-
         <select value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}>
           <option value="popular">Most Popular</option>
           <option value="new">Newest</option>
           <option value="price_asc">Price: Low → High</option>
           <option value="price_desc">Price: High → Low</option>
         </select>
-
         <select value={type} onChange={e => { setType(e.target.value); setPage(1); }}>
           <option value="all">All Types</option>
           {allTypes.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
-
         <select value={color} onChange={e => { setColor(e.target.value); setPage(1); }}>
           <option value="">All Colours</option>
           {allColors.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-
         <select value={priceRange} onChange={e => { setPriceRange(e.target.value); setPage(1); }}>
           <option value="">All Prices</option>
           <option value="0-50">£0–50</option>
           <option value="50-100">£50–100</option>
           <option value="100-1000">£100+</option>
         </select>
-
         <select value={merchant} onChange={e => { setMerchant(e.target.value); setPage(1); }}>
           <option value="">All Merchants</option>
           {allMerchants.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
       </div>
 
-      {/* Product Grid */}
-      <section className="product-grid-section">
-        <div className="product-grid">
-          {products.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-
-        {/* Pagination */}
-        <div className="pagination">
-          <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>← Previous</button>
-          <span>Page {page} of {totalPages}</span>
-          <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>Next →</button>
-        </div>
-      </section>
+      {/* Products */}
+      <div className="product-grid">
+        {products.map(p => <ProductCard key={p.id} product={p} />)}
+      </div>
     </main>
   );
 }
