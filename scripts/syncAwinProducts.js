@@ -1,50 +1,60 @@
-import fs from "fs";
-import path from "path";
-import { supabaseAdmin } from "../lib/supabaseAdmin.js";
-import { mapAwinToProduct } from "../lib/awinMapper.js"; // make sure you have this
+import { createClient } from "@supabase/supabase-js";
+import { fetchAwinProducts } from "../lib/awin";
+import { mapAwinToProduct } from "../lib/awinMapper";
 
-async function syncMockAwin() {
+// Initialize Supabase service role
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+async function syncAwin() {
+  console.log("Starting AWIN sync...");
+
   try {
-    console.log("Starting mock AWIN sync...");
+    const limit = 50; // number of products per page
+    let page = 1;
+    let totalFetched = 0;
+    let allProducts = [];
 
-    // Load mock AWIN data locally
-    const filePath = path.join(process.cwd(), "data/mockAwinProducts.json");
-    const raw = fs.readFileSync(filePath, "utf-8");
-    const awinRaw = JSON.parse(raw);
+    // Loop through pages until less than limit returned
+    while (true) {
+      const awinRaw = await fetchAwinProducts({ limit, page });
+      if (!awinRaw.length) break;
 
-    // Map to your DB schema
-    const mapped = awinRaw.map(mapAwinToProduct);
+      const mapped = awinRaw.map(mapAwinToProduct);
+      allProducts = allProducts.concat(mapped);
+      totalFetched += mapped.length;
+
+      if (awinRaw.length < limit) break; // last page
+      page++;
+    }
+
+    console.log(`Fetched ${totalFetched} AWIN products.`);
 
     // Deduplicate by title + merchant
     const seen = new Map();
-    const deduped = mapped.filter((p, index) => {
+    const deduped = allProducts.filter(p => {
       const key = `${p.title.toLowerCase()}_${p.merchant.toLowerCase()}`;
       if (seen.has(key)) return false;
       seen.set(key, true);
-
-      // Ensure unique ID for testing
-      p.id = `awin_test_${Date.now()}_${index}`;
       return true;
     });
 
-    console.log(`Upserting ${deduped.length} mock AWIN products into Supabase...`);
+    console.log(`Deduplicated to ${deduped.length} products.`);
 
     // Upsert into Supabase
-    const { data, error } = await supabaseAdmin
+    const { error } = await supabase
       .from("products")
       .upsert(deduped, { onConflict: ["id"] });
 
-    if (error) {
-      console.error("Upsert failed:", error);
-    } else {
-      console.log("Upsert succeeded. Rows inserted/updated:", data.length);
-    }
+    if (error) throw error;
 
-    console.log("Mock AWIN sync complete!");
+    console.log("AWIN products synced successfully!");
   } catch (err) {
-    console.error("Sync script failed:", err);
+    console.error("AWIN sync failed:", err);
   }
 }
 
-// Run the sync script
-syncMockAwin();
+// Run script
+syncAwin();
