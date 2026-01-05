@@ -1,40 +1,50 @@
 import fs from "fs";
 import path from "path";
-import { createClient } from "@supabase/supabase-js";
-import { mapAwinToProduct } from "../lib/awinMapper";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+import { supabaseAdmin } from "../lib/supabaseAdmin.js";
+import { mapAwinToProduct } from "../lib/awinMapper.js"; // make sure you have this
 
 async function syncMockAwin() {
-  console.log("Starting mock AWIN sync...");
+  try {
+    console.log("Starting mock AWIN sync...");
 
-  const filePath = path.join(process.cwd(), "data/mockAwinProducts.json");
-  const raw = fs.readFileSync(filePath, "utf-8");
-  const awinRaw = JSON.parse(raw);
+    // Load mock AWIN data locally
+    const filePath = path.join(process.cwd(), "data/mockAwinProducts.json");
+    const raw = fs.readFileSync(filePath, "utf-8");
+    const awinRaw = JSON.parse(raw);
 
-  const mapped = awinRaw.map(mapAwinToProduct);
+    // Map to your DB schema
+    const mapped = awinRaw.map(mapAwinToProduct);
 
-  // Deduplicate
-  const seen = new Map();
-  const deduped = mapped.filter(p => {
-    const key = `${p.title.toLowerCase()}_${p.merchant.toLowerCase()}`;
-    if (seen.has(key)) return false;
-    seen.set(key, true);
-    return true;
-  });
+    // Deduplicate by title + merchant
+    const seen = new Map();
+    const deduped = mapped.filter((p, index) => {
+      const key = `${p.title.toLowerCase()}_${p.merchant.toLowerCase()}`;
+      if (seen.has(key)) return false;
+      seen.set(key, true);
 
-  console.log(`Upserting ${deduped.length} mock AWIN products into Supabase...`);
+      // Ensure unique ID for testing
+      p.id = `awin_test_${Date.now()}_${index}`;
+      return true;
+    });
 
-  const { error } = await supabase
-    .from("products")
-    .upsert(deduped, { onConflict: ["id"] });
+    console.log(`Upserting ${deduped.length} mock AWIN products into Supabase...`);
 
-  if (error) throw error;
+    // Upsert into Supabase
+    const { data, error } = await supabaseAdmin
+      .from("products")
+      .upsert(deduped, { onConflict: ["id"] });
 
-  console.log("Mock AWIN sync complete!");
+    if (error) {
+      console.error("Upsert failed:", error);
+    } else {
+      console.log("Upsert succeeded. Rows inserted/updated:", data.length);
+    }
+
+    console.log("Mock AWIN sync complete!");
+  } catch (err) {
+    console.error("Sync script failed:", err);
+  }
 }
 
+// Run the sync script
 syncMockAwin();
