@@ -1,42 +1,56 @@
+import crypto from "crypto";
 import { supabase } from "../../lib/supabase";
+
+const CLICK_TTL_MS = 5000; // 5 seconds
+
+const clickCache = new Map();
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).end();
   }
 
   const { id } = req.query;
+  if (!id) return res.status(400).end();
 
-  if (!id) {
-    return res.status(400).json({ error: "Missing product id" });
+  const ip =
+    req.headers["x-forwarded-for"]?.split(",")[0] ||
+    req.socket.remoteAddress ||
+    "unknown";
+
+  const ua = req.headers["user-agent"] || "unknown";
+  const key = crypto
+    .createHash("sha256")
+    .update(`${id}:${ip}:${ua}`)
+    .digest("hex");
+
+  const now = Date.now();
+  const last = clickCache.get(key);
+
+  if (last && now - last < CLICK_TTL_MS) {
+    return res.redirect(302, "/"); // ignore duplicate
   }
 
+  clickCache.set(key, now);
+
   try {
-    // Fetch current clicks + affiliate link
+    // Get affiliate link
     const { data, error } = await supabase
       .from("products")
-      .select("id, clicks, affiliate_link")
+      .select("affiliate_link")
       .eq("id", id)
       .single();
 
-    if (error || !data) {
-      return res.status(404).json({ error: "Product not found" });
+    if (error || !data?.affiliate_link) {
+      return res.status(404).end();
     }
 
-    // Increment clicks safely
-    await supabase
-      .from("products")
-      .update({ clicks: (data.clicks || 0) + 1 })
-      .eq("id", id);
+    // Atomic increment
+    await supabase.rpc("increment_click", { product_id: id });
 
-    // Redirect to affiliate link
-    if (!data.affiliate_link) {
-      return res.status(400).json({ error: "Missing affiliate link" });
-    }
-
-    return res.redirect(data.affiliate_link);
+    return res.redirect(302, data.affiliate_link);
   } catch (err) {
-    console.error("Click handler error:", err);
-    return res.status(500).json({ error: "Unexpected server error" });
+    console.error("Click error:", err);
+    return res.status(500).end();
   }
 }
