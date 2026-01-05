@@ -26,12 +26,6 @@ export default function ProductPage() {
 
         setProduct(data);
         setLoading(false);
-
-        await supabase
-          .from("products")
-          .update({ clicks: (data.clicks || 0) + 1 })
-          .eq("id", id);
-
       } catch (err) {
         console.error(err);
         setError("Product not found.");
@@ -56,18 +50,18 @@ export default function ProductPage() {
               __html: JSON.stringify({
                 "@context": "https://schema.org/",
                 "@type": "Product",
-                "name": product.title,
-                "image": [product.image],
-                "description": `${product.category ? product.category + " " : ""}${product.color ? product.color + " " : ""}work clothing by ${product.merchant}`,
-                "sku": product.id,
-                "brand": { "@type": "Brand", "name": product.merchant },
-                "offers": {
+                name: product.title,
+                image: [product.image],
+                description: `${product.category ? product.category + " " : ""}${product.color ? product.color + " " : ""}work clothing by ${product.merchant}`,
+                sku: product.id,
+                brand: { "@type": "Brand", name: product.merchant },
+                offers: {
                   "@type": "Offer",
-                  "url": product.affiliate_link || "",
-                  "priceCurrency": "GBP",
-                  "price": Number(product.price).toFixed(2),
-                  "availability": "https://schema.org/InStock",
-                  "itemCondition": "https://schema.org/NewCondition"
+                  url: product.affiliate_link || "",
+                  priceCurrency: "GBP",
+                  price: Number(product.price).toFixed(2),
+                  availability: "https://schema.org/InStock",
+                  itemCondition: "https://schema.org/NewCondition"
                 }
               })
             }}
@@ -78,15 +72,17 @@ export default function ProductPage() {
           <div className="product-image">
             <img src={product.image} alt={product.title} />
           </div>
+
           <div className="product-info">
             <h1>{product.title}</h1>
             <p className="price">£{Number(product.price).toFixed(2)}</p>
+
             <p><strong>Merchant:</strong> {product.merchant}</p>
             {product.color && <p><strong>Color:</strong> {product.color}</p>}
             {product.category && <p><strong>Category:</strong> {product.category}</p>}
 
             <a
-              href={product.affiliate_link || "#"}
+              href={`/api/click?id=${product.id}`}
               target="_blank"
               rel="noopener noreferrer"
               className="buy-now-btn"
