@@ -1,26 +1,44 @@
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
-import fs from "fs";
-import path from "path";
 import { mapAwinToProduct } from "../../../lib/awinMapper.js";
 
 export default async function handler(req, res) {
   try {
-    // Load mock AWIN data
-    const filePath = path.join(process.cwd(), "data/mockAwinProducts.json");
-    const raw = fs.readFileSync(filePath, "utf-8");
-    const awinRaw = JSON.parse(raw);
+    console.log("Starting mock AWIN sync...");
 
-    // Map to Supabase schema
+    // Hardcoded mock AWIN products
+    const awinRaw = [
+      {
+        id: 101,
+        product_name: "Mock Shirt",
+        search_price: { amount: 49.99 },
+        image_url: "/mock/shirt.jpg",
+        advertiser_name: "Mock Merchant",
+        aw_deep_link: "https://example.com/affiliate/101",
+        category_name: "shirts"
+      },
+      {
+        id: 102,
+        product_name: "Mock Pants",
+        search_price: { amount: 59.99 },
+        image_url: "/mock/pants.jpg",
+        advertiser_name: "Mock Merchant",
+        aw_deep_link: "https://example.com/affiliate/102",
+        category_name: "pants"
+      }
+    ];
+
+    // Map to your Supabase schema
     const mapped = awinRaw.map(mapAwinToProduct);
 
-    // Deduplicate by title + merchant and force unique IDs for testing
+    // Deduplicate and assign unique IDs
     const seen = new Map();
     const deduped = mapped.filter((p, index) => {
       const key = `${p.title.toLowerCase()}_${p.merchant.toLowerCase()}`;
       if (seen.has(key)) return false;
       seen.set(key, true);
 
-      p.id = `awin_test_${Date.now()}_${index}`; // ensures unique ID
+      // Unique ID so we can insert multiple times for testing
+      p.id = `awin_test_${Date.now()}_${index}`;
       return true;
     });
 
