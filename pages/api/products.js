@@ -26,21 +26,23 @@ export default async function handler(req, res) {
   const USE_AWIN = process.env.USE_AWIN === "true";
   const USE_MOCK = process.env.USE_MOCK === "true";
 
-  /* ------------------------------------------------------------------
-     1️⃣ AWIN MODE (NO DB, SAFE TESTING)
-  ------------------------------------------------------------------ */
+  /* -----------------------------
+     1️⃣ AWIN MODE (no DB)
+  ----------------------------- */
   if (USE_AWIN) {
     try {
-      const awinRaw = await fetchAwinProducts({
-        q,
-        limit: pageLimit,
-      });
-
+      const awinRaw = await fetchAwinProducts({ q, limit: pageLimit });
       let products = awinRaw.map(mapAwinToProduct);
 
-      // Lightweight filtering (optional)
-      if (category) products = products.filter(p => p.category === category);
-      if (merchant) products = products.filter(p => p.merchant === merchant);
+      // Lightweight filters
+      if (category)
+        products = products.filter(p =>
+          p.category?.toLowerCase() === category.toLowerCase()
+        );
+      if (merchant)
+        products = products.filter(p =>
+          p.merchant?.toLowerCase() === merchant.toLowerCase()
+        );
       if (minPrice) products = products.filter(p => p.price >= Number(minPrice));
       if (maxPrice) products = products.filter(p => p.price <= Number(maxPrice));
 
@@ -54,14 +56,20 @@ export default async function handler(req, res) {
     }
   }
 
-  /* ------------------------------------------------------------------
+  /* -----------------------------
      2️⃣ MOCK MODE
-  ------------------------------------------------------------------ */
+  ----------------------------- */
   if (USE_MOCK) {
     let products = [...mockProducts];
 
-    if (category) products = products.filter(p => p.category === category);
-    if (merchant) products = products.filter(p => p.merchant === merchant);
+    if (category)
+      products = products.filter(p =>
+        p.category?.toLowerCase() === category.toLowerCase()
+      );
+    if (merchant)
+      products = products.filter(p =>
+        p.merchant?.toLowerCase() === merchant.toLowerCase()
+      );
     if (color) products = products.filter(p => p.color === color);
     if (q) products = products.filter(p =>
       p.title.toLowerCase().includes(q.toLowerCase())
@@ -70,7 +78,7 @@ export default async function handler(req, res) {
     if (maxPrice) products = products.filter(p => p.price <= Number(maxPrice));
 
     if (sort === "price_asc") products.sort((a, b) => a.price - b.price);
-    if (sort === "price_desc") products.sort((a, b) => b.price - a.price);
+    else if (sort === "price_desc") products.sort((a, b) => b.price - a.price);
 
     const from = (pageNum - 1) * pageLimit;
     const to = from + pageLimit;
@@ -82,21 +90,27 @@ export default async function handler(req, res) {
     });
   }
 
-  /* ------------------------------------------------------------------
-     3️⃣ DEFAULT: SUPABASE (PRODUCTION PATH)
-  ------------------------------------------------------------------ */
+  /* -----------------------------
+     3️⃣ SUPABASE MODE (production)
+  ----------------------------- */
   try {
     let query = supabase
       .from("products")
       .select("*", { count: "exact" });
 
-    if (category) query = query.eq("category", category);
+    // Case-insensitive category
+    if (category) query = query.ilike("category", category);
     if (color) query = query.eq("color", color);
-    if (merchant) query = query.eq("merchant", merchant);
-    if (minPrice) query = query.gte("price", parseFloat(minPrice));
-    if (maxPrice) query = query.lte("price", parseFloat(maxPrice));
+    if (merchant) query = query.ilike("merchant", merchant);
+
+    const min = minPrice ? parseFloat(minPrice) : undefined;
+    const max = maxPrice ? parseFloat(maxPrice) : undefined;
+    if (min !== undefined) query = query.gte("price", min);
+    if (max !== undefined) query = query.lte("price", max);
+
     if (q) query = query.ilike("title", `%${q}%`);
 
+    // Sorting
     if (sort === "popular") query = query.order("clicks", { ascending: false });
     else if (sort === "new") query = query.order("created_at", { ascending: false });
     else if (sort === "price_asc") query = query.order("price", { ascending: true });
