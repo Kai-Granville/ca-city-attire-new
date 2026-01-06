@@ -150,6 +150,13 @@ body {
   background: var(--accent-color);
 }
 
+/* Active category styling */
+.category-nav a.active {
+  background: var(--accent-color);
+  color: var(--hover-text);
+  font-weight: bold;
+}
+
 /* ===========================
    FILTERS
 =========================== */
