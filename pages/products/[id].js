@@ -26,6 +26,9 @@ export default function ProductPage() {
 
         setProduct(data);
         setLoading(false);
+
+        // Increment clicks safely
+        await supabase.rpc("increment_click", { product_id: id });
       } catch (err) {
         console.error(err);
         setError("Product not found.");
@@ -52,7 +55,9 @@ export default function ProductPage() {
                 "@type": "Product",
                 name: product.title,
                 image: [product.image],
-                description: `${product.category ? product.category + " " : ""}${product.color ? product.color + " " : ""}work clothing by ${product.merchant}`,
+                description: `${product.category ? product.category + " " : ""}${
+                  product.color ? product.color + " " : ""
+                }work clothing by ${product.merchant}`,
                 sku: product.id,
                 brand: { "@type": "Brand", name: product.merchant },
                 offers: {
@@ -61,9 +66,9 @@ export default function ProductPage() {
                   priceCurrency: "GBP",
                   price: Number(product.price).toFixed(2),
                   availability: "https://schema.org/InStock",
-                  itemCondition: "https://schema.org/NewCondition"
-                }
-              })
+                  itemCondition: "https://schema.org/NewCondition",
+                },
+              }),
             }}
           />
         </Head>
@@ -89,6 +94,9 @@ export default function ProductPage() {
             >
               Buy Now
             </a>
+            <p className="microcopy">
+              You’ll be redirected to the retailer to complete your purchase.
+            </p>
           </div>
         </div>
       </section>
