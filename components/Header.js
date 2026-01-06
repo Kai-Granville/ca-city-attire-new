@@ -15,7 +15,8 @@ export default function Header() {
     setQuery("");
   };
 
-  const activeCategory = router.query.slug;
+  // Normalize slug for comparison
+  const activeCategory = (router.query.slug || "").toLowerCase();
 
   return (
     <header className="site-header">
@@ -23,16 +24,7 @@ export default function Header() {
         City Attire
       </div>
 
-      <nav className="category-nav">
-        {categories.map((cat) => (
-          <Link key={cat} href={`/category/${cat}`}>
-            <a className={activeCategory === cat ? "active" : ""}>
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </a>
-          </Link>
-        ))}
-      </nav>
-
+      {/* Search form */}
       <form onSubmit={handleSearch} className="header-search">
         <input
           type="text"
@@ -42,6 +34,17 @@ export default function Header() {
         />
         <button type="submit">Search</button>
       </form>
+
+      {/* Categories go to right of search bar */}
+      <nav className="category-nav">
+        {categories.map((cat) => (
+          <Link key={cat} href={`/category/${cat}`}>
+            <a className={activeCategory === cat ? "active" : ""}>
+              {cat.charAt(0).toUpperCase() + cat.slice(1)}
+            </a>
+          </Link>
+        ))}
+      </nav>
     </header>
   );
 }
