@@ -11,7 +11,7 @@ export default function Navbar() {
       <div className="nav-links">
         {categories.map(cat => (
           <Link key={cat} href={`/category/${cat.toLowerCase()}`}>
-            <a className="nav-btn">{cat}</a>
+            {cat}
           </Link>
         ))}
       </div>

@@ -6,30 +6,32 @@ export default function CategoryPage() {
   const router = useRouter();
   const { slug } = router.query;
 
+  // Normalize slug to lowercase and default to "all"
+  const type = slug ? slug.toLowerCase() : "all";
+
   const [products, setProducts] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const [allColors, setAllColors] = useState([]);
   const [allMerchants, setAllMerchants] = useState([]);
-  const [allTypes, setAllTypes] = useState([]);
-
   const [sort, setSort] = useState("popular");
   const [search, setSearch] = useState("");
   const [color, setColor] = useState("");
   const [priceRange, setPriceRange] = useState("");
   const [merchant, setMerchant] = useState("");
-  const [type, setType] = useState(slug || "all");
 
+  // Convert price range string to min/max
   const getPriceFilter = range => {
     if (!range) return {};
     const [min, max] = range.split("-").map(Number);
     return { minPrice: min, maxPrice: max || 100000 };
   };
 
-  // Fetch products
+  // Fetch products whenever filters change
   useEffect(() => {
     if (!slug) return;
+
     const { minPrice, maxPrice } = getPriceFilter(priceRange);
 
     const queryParams = new URLSearchParams({
@@ -52,20 +54,23 @@ export default function CategoryPage() {
 
         setTotalPages(data.totalPages || 1);
 
+        // Extract filters from returned products
         const colors = Array.from(new Set(data.products.map(p => p.color).filter(Boolean)));
         const merchants = Array.from(new Set(data.products.map(p => p.merchant).filter(Boolean)));
-        const types = Array.from(new Set(data.products.map(p => p.category).filter(Boolean)));
 
         setAllColors(colors);
         setAllMerchants(merchants);
-        setAllTypes(types);
-      });
+      })
+      .catch(err => console.error("Error fetching products:", err));
   }, [slug, type, page, sort, search, color, priceRange, merchant, router.query.q]);
 
   // Infinite scroll
   useEffect(() => {
     const handleScroll = () => {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 && page < totalPages) {
+      if (
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 &&
+        page < totalPages
+      ) {
         setPage(prev => prev + 1);
       }
     };
@@ -97,10 +102,6 @@ export default function CategoryPage() {
           <option value="new">Newest</option>
           <option value="price_asc">Price: Low → High</option>
           <option value="price_desc">Price: High → Low</option>
-        </select>
-        <select value={type} onChange={e => { setType(e.target.value); setPage(1); }}>
-          <option value="all">All Types</option>
-          {allTypes.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
         <select value={color} onChange={e => { setColor(e.target.value); setPage(1); }}>
           <option value="">All Colours</option>
