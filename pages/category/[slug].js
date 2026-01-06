@@ -19,18 +19,25 @@ export default function CategoryPage() {
   const [color, setColor] = useState("");
   const [priceRange, setPriceRange] = useState("");
   const [merchant, setMerchant] = useState("");
-  const [type, setType] = useState(slug || "all");
+  const [type, setType] = useState("all");
 
-  // Map price range string to min/max
+  // Sync type when slug changes
+  useEffect(() => {
+    if (!slug) return;
+    setType(slug);
+    setPage(1);
+  }, [slug]);
+
   const getPriceFilter = (range) => {
     if (!range) return {};
     const [min, max] = range.split("-").map(Number);
     return { minPrice: min, maxPrice: max || 100000 };
   };
 
-  // Fetch products whenever filters or page changes
+  // Fetch products
   useEffect(() => {
     if (!slug) return;
+
     const { minPrice, maxPrice } = getPriceFilter(priceRange);
 
     const queryParams = new URLSearchParams({
@@ -53,16 +60,10 @@ export default function CategoryPage() {
 
         setTotalPages(data.totalPages || 1);
 
-        // Update filters dynamically
-        const colors = Array.from(
-          new Set(data.products.map((p) => p.color).filter(Boolean))
-        );
-        const merchants = Array.from(
-          new Set(data.products.map((p) => p.merchant).filter(Boolean))
-        );
-        const types = Array.from(
-          new Set(data.products.map((p) => p.category).filter(Boolean))
-        );
+        // Populate filter options dynamically
+        const colors = Array.from(new Set(data.products.map(p => p.color).filter(Boolean)));
+        const merchants = Array.from(new Set(data.products.map(p => p.merchant).filter(Boolean)));
+        const types = Array.from(new Set(data.products.map(p => p.category).filter(Boolean)));
 
         setAllColors(colors);
         setAllMerchants(merchants);
@@ -73,11 +74,7 @@ export default function CategoryPage() {
   // Infinite scroll
   useEffect(() => {
     const handleScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >=
-          document.body.offsetHeight - 500 &&
-        page < totalPages
-      ) {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 && page < totalPages) {
         setPage((prev) => prev + 1);
       }
     };
@@ -87,12 +84,10 @@ export default function CategoryPage() {
 
   if (!slug) return null;
 
-  const title =
-    type === "all" ? "All Products" : type.charAt(0).toUpperCase() + type.slice(1);
+  const title = type === "all" ? "All Products" : type.charAt(0).toUpperCase() + type.slice(1);
 
   return (
     <main className="container">
-      {/* Page Hero */}
       <section className="hero" style={{ padding: "3rem 2rem", marginBottom: "2rem" }}>
         <h1>{title}</h1>
         <p>Browse our collection of premium work clothes</p>
@@ -104,89 +99,37 @@ export default function CategoryPage() {
           type="text"
           placeholder="Search products..."
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
         />
-
-        <select
-          value={sort}
-          onChange={(e) => {
-            setSort(e.target.value);
-            setPage(1);
-          }}
-        >
+        <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }}>
           <option value="popular">Most Popular</option>
           <option value="new">Newest</option>
           <option value="price_asc">Price: Low → High</option>
           <option value="price_desc">Price: High → Low</option>
         </select>
-
-        <select
-          value={type}
-          onChange={(e) => {
-            setType(e.target.value);
-            setPage(1);
-          }}
-        >
+        <select value={type} onChange={(e) => { setType(e.target.value); setPage(1); }}>
           <option value="all">All Types</option>
-          {allTypes.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
+          {allTypes.map((t) => <option key={t} value={t}>{t}</option>)}
         </select>
-
-        <select
-          value={color}
-          onChange={(e) => {
-            setColor(e.target.value);
-            setPage(1);
-          }}
-        >
+        <select value={color} onChange={(e) => { setColor(e.target.value); setPage(1); }}>
           <option value="">All Colours</option>
-          {allColors.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
+          {allColors.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
-
-        <select
-          value={priceRange}
-          onChange={(e) => {
-            setPriceRange(e.target.value);
-            setPage(1);
-          }}
-        >
+        <select value={priceRange} onChange={(e) => { setPriceRange(e.target.value); setPage(1); }}>
           <option value="">All Prices</option>
           <option value="0-50">£0–50</option>
           <option value="50-100">£50–100</option>
           <option value="100-1000">£100+</option>
         </select>
-
-        <select
-          value={merchant}
-          onChange={(e) => {
-            setMerchant(e.target.value);
-            setPage(1);
-          }}
-        >
+        <select value={merchant} onChange={(e) => { setMerchant(e.target.value); setPage(1); }}>
           <option value="">All Merchants</option>
-          {allMerchants.map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
+          {allMerchants.map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
       </div>
 
       {/* Products */}
       <div className="product-grid">
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
+        {products.map((p) => <ProductCard key={p.id} product={p} />)}
       </div>
     </main>
   );
