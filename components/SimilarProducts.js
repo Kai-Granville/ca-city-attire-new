@@ -1,63 +1,79 @@
 // components/SimilarProducts.js
 import ProductCard from "./ProductCard";
-import { useState } from "react";
+import { useRef } from "react";
 
 export default function SimilarProducts({ products }) {
-  const [start, setStart] = useState(0);
-  const visibleCount = 4; // number of products to show in carousel
-
-  const end = start + visibleCount;
-  const visibleProducts = products.slice(start, end);
-
-  const handlePrev = () => {
-    setStart(Math.max(start - visibleCount, 0));
-  };
-
-  const handleNext = () => {
-    setStart(Math.min(start + visibleCount, products.length - visibleCount));
-  };
+  const containerRef = useRef(null);
 
   if (!products || products.length === 0) return null;
 
+  const scrollLeft = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy({ left: -300, behavior: "smooth" });
+    }
+  };
+
+  const scrollRight = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy({ left: 300, behavior: "smooth" });
+    }
+  };
+
   return (
     <section style={{ marginTop: "4rem" }}>
-      <h2 style={{ fontSize: "1.8rem", marginBottom: "1.5rem" }}>You may also like</h2>
+      <h2 style={{ fontSize: "1.8rem", marginBottom: "1.5rem" }}>
+        You may also like
+      </h2>
 
       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        {/* Left arrow */}
         <button
-          onClick={handlePrev}
-          disabled={start === 0}
+          onClick={scrollLeft}
           style={{
             background: "#eee",
             border: "none",
             padding: "0.5rem 1rem",
-            cursor: start === 0 ? "not-allowed" : "pointer",
+            cursor: "pointer",
+            flexShrink: 0,
           }}
         >
           ◀
         </button>
 
+        {/* Scrollable product container */}
         <div
+          ref={containerRef}
           style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${visibleProducts.length}, 1fr)`,
+            display: "flex",
+            overflowX: "auto",
             gap: "1rem",
-            flex: 1,
+            paddingBottom: "0.5rem",
+            scrollSnapType: "x mandatory",
           }}
         >
-          {visibleProducts.map(p => (
-            <ProductCard key={p.id} product={p} />
+          {products.map((p) => (
+            <div
+              key={p.id}
+              style={{
+                flex: "0 0 auto",
+                scrollSnapAlign: "start",
+                minWidth: "180px",
+              }}
+            >
+              <ProductCard product={p} />
+            </div>
           ))}
         </div>
 
+        {/* Right arrow */}
         <button
-          onClick={handleNext}
-          disabled={end >= products.length}
+          onClick={scrollRight}
           style={{
             background: "#eee",
             border: "none",
             padding: "0.5rem 1rem",
-            cursor: end >= products.length ? "not-allowed" : "pointer",
+            cursor: "pointer",
+            flexShrink: 0,
           }}
         >
           ▶
