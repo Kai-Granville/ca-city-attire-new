@@ -2,6 +2,7 @@
 import ProductCard from "./ProductCard";
 import { useRef } from "react";
 
+// Compact carousel with smaller cards and fonts
 export default function SimilarProducts({ products }) {
   const containerRef = useRef(null);
 
@@ -9,23 +10,24 @@ export default function SimilarProducts({ products }) {
 
   const scrollLeft = () => {
     if (containerRef.current) {
-      containerRef.current.scrollBy({ left: -250, behavior: "smooth" });
+      containerRef.current.scrollBy({ left: -200, behavior: "smooth" });
     }
   };
 
   const scrollRight = () => {
     if (containerRef.current) {
-      containerRef.current.scrollBy({ left: 250, behavior: "smooth" });
+      containerRef.current.scrollBy({ left: 200, behavior: "smooth" });
     }
   };
 
   return (
-    <section style={{ marginTop: "2rem" }}>
-      <h2 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>
+    <section style={{ marginTop: "1.5rem" }}>
+      <h2 style={{ fontSize: "1.3rem", marginBottom: "0.75rem" }}>
         You may also like
       </h2>
 
       <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+        {/* Left arrow */}
         <button
           onClick={scrollLeft}
           style={{
@@ -39,6 +41,7 @@ export default function SimilarProducts({ products }) {
           ◀
         </button>
 
+        {/* Scrollable container */}
         <div
           ref={containerRef}
           style={{
@@ -55,14 +58,18 @@ export default function SimilarProducts({ products }) {
               style={{
                 flex: "0 0 auto",
                 scrollSnapAlign: "start",
-                minWidth: "140px",
+                minWidth: "130px", // smaller card
               }}
             >
-              <ProductCard product={p} />
+              <ProductCard
+                product={p}
+                compact // pass a flag to shrink inside ProductCard
+              />
             </div>
           ))}
         </div>
 
+        {/* Right arrow */}
         <button
           onClick={scrollRight}
           style={{
