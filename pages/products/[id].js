@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../../lib/supabase";
+import ProductCard from "../../components/ProductCard";
+import SimilarProducts from "../../components/SimilarProducts";
 import Head from "next/head";
 
 export default function ProductPage() {
@@ -9,6 +11,7 @@ export default function ProductPage() {
   const { id } = router.query;
 
   const [product, setProduct] = useState(null);
+  const [similarProducts, setSimilarProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -17,6 +20,7 @@ export default function ProductPage() {
 
     const fetchProduct = async () => {
       try {
+        // Fetch main product
         const { data, error } = await supabase
           .from("products")
           .select("*")
@@ -24,8 +28,18 @@ export default function ProductPage() {
           .single();
 
         if (error) throw error;
-
         setProduct(data);
+
+        // Fetch similar products (same category, exclude current)
+        const res = await fetch(
+          `/api/products?category=${encodeURIComponent(data.category)}&sort=popular&limit=12`
+        );
+        const similarData = await res.json();
+
+        setSimilarProducts(
+          similarData.products.filter(p => p.id !== id)
+        );
+
         setLoading(false);
       } catch (err) {
         console.error(err);
@@ -55,6 +69,9 @@ export default function ProductPage() {
           <div className="product-info">
             <h1>{product.title}</h1>
             <p className="price">£{Number(product.price).toFixed(2)}</p>
+            <p><strong>Merchant:</strong> {product.merchant}</p>
+            {product.color && <p><strong>Color:</strong> {product.color}</p>}
+            {product.category && <p><strong>Category:</strong> {product.category}</p>}
 
             <a
               href={`/api/click?id=${product.id}`}
@@ -67,6 +84,9 @@ export default function ProductPage() {
           </div>
         </div>
       </section>
+
+      {/* ------------------- Similar Products Carousel ------------------- */}
+      <SimilarProducts products={similarProducts} />
     </main>
   );
 }
