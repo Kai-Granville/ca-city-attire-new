@@ -13,28 +13,35 @@ export default function ProductCard({ product, compact }) {
         }}
       >
         <div
+          className="product-card"
           style={{
             border: "1px solid #eee",
             borderRadius: "8px",
             padding: compact ? "0.5rem" : "1rem",
             textAlign: "center",
             backgroundColor: "#fff",
-            transition: "transform 0.2s, box-shadow 0.2s",
+            transition: "transform 0.2s ease, box-shadow 0.2s ease",
             cursor: "pointer",
           }}
-          className="product-card"
         >
-          <img
-            src={product.image}
-            alt={product.title}
+          <div
             style={{
-              width: "100%",
-              height: compact ? "100px" : "150px",
-              objectFit: "cover",
+              overflow: "hidden",
               borderRadius: "6px",
-              marginBottom: compact ? "0.25rem" : "0.5rem",
             }}
-          />
+          >
+            <img
+              src={product.image}
+              alt={product.title}
+              style={{
+                width: "100%",
+                height: compact ? "100px" : "150px",
+                objectFit: "cover",
+                transition: "transform 0.3s ease",
+              }}
+              className="product-image"
+            />
+          </div>
 
           <h3
             style={{
@@ -72,6 +79,17 @@ export default function ProductCard({ product, compact }) {
             </p>
           )}
         </div>
+
+        <style jsx>{`
+          .product-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+          }
+
+          .product-card:hover .product-image {
+            transform: scale(1.05);
+          }
+        `}</style>
       </a>
     </Link>
   );
