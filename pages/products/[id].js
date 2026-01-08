@@ -1,3 +1,4 @@
+// pages/products/[id].js
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../../lib/supabase";
@@ -26,9 +27,6 @@ export default function ProductPage() {
 
         setProduct(data);
         setLoading(false);
-
-        // Increment clicks safely
-        await supabase.rpc("increment_click", { product_id: id });
       } catch (err) {
         console.error(err);
         setError("Product not found.");
@@ -47,30 +45,6 @@ export default function ProductPage() {
       <section className="product-detail">
         <Head>
           <title>{product.title} | City Attire</title>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
-                "@context": "https://schema.org/",
-                "@type": "Product",
-                name: product.title,
-                image: [product.image],
-                description: `${product.category ? product.category + " " : ""}${
-                  product.color ? product.color + " " : ""
-                }work clothing by ${product.merchant}`,
-                sku: product.id,
-                brand: { "@type": "Brand", name: product.merchant },
-                offers: {
-                  "@type": "Offer",
-                  url: product.affiliate_link || "",
-                  priceCurrency: "GBP",
-                  price: Number(product.price).toFixed(2),
-                  availability: "https://schema.org/InStock",
-                  itemCondition: "https://schema.org/NewCondition",
-                },
-              }),
-            }}
-          />
         </Head>
 
         <div className="product-detail-grid">
@@ -82,10 +56,6 @@ export default function ProductPage() {
             <h1>{product.title}</h1>
             <p className="price">£{Number(product.price).toFixed(2)}</p>
 
-            <p><strong>Merchant:</strong> {product.merchant}</p>
-            {product.color && <p><strong>Color:</strong> {product.color}</p>}
-            {product.category && <p><strong>Category:</strong> {product.category}</p>}
-
             <a
               href={`/api/click?id=${product.id}`}
               target="_blank"
@@ -94,9 +64,6 @@ export default function ProductPage() {
             >
               Buy Now
             </a>
-            <p className="microcopy">
-              You’ll be redirected to the retailer to complete your purchase.
-            </p>
           </div>
         </div>
       </section>

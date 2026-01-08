@@ -1,3 +1,4 @@
+// pages/api/products.js
 import { supabase } from "../../lib/supabase";
 import mockProducts from "../../data/mockProducts";
 import { fetchAwinProducts } from "../../lib/awin";
@@ -20,8 +21,8 @@ export default async function handler(req, res) {
     limit = 20,
   } = req.query;
 
-  const pageNum = parseInt(page);
-  const pageLimit = parseInt(limit);
+  const pageNum = parseInt(page, 10);
+  const pageLimit = parseInt(limit, 10);
 
   const USE_AWIN = process.env.USE_AWIN === "true";
   const USE_MOCK = process.env.USE_MOCK === "true";
@@ -32,17 +33,18 @@ export default async function handler(req, res) {
   if (USE_AWIN) {
     try {
       const awinRaw = await fetchAwinProducts({ q, limit: pageLimit });
-      let products = awinRaw.map(mapAwinToProduct);
+      let products = awinRaw.map(mapAwinToProduct).filter(Boolean);
 
-      // Lightweight filters
       if (category)
         products = products.filter(p =>
-          p.category?.toLowerCase() === category.toLowerCase()
+          p.category?.toLowerCase().includes(category.toLowerCase())
         );
+
       if (merchant)
         products = products.filter(p =>
-          p.merchant?.toLowerCase() === merchant.toLowerCase()
+          p.merchant?.toLowerCase().includes(merchant.toLowerCase())
         );
+
       if (minPrice) products = products.filter(p => p.price >= Number(minPrice));
       if (maxPrice) products = products.filter(p => p.price <= Number(maxPrice));
 
@@ -64,16 +66,21 @@ export default async function handler(req, res) {
 
     if (category)
       products = products.filter(p =>
-        p.category?.toLowerCase() === category.toLowerCase()
+        p.category?.toLowerCase().includes(category.toLowerCase())
       );
+
     if (merchant)
       products = products.filter(p =>
-        p.merchant?.toLowerCase() === merchant.toLowerCase()
+        p.merchant?.toLowerCase().includes(merchant.toLowerCase())
       );
+
     if (color) products = products.filter(p => p.color === color);
-    if (q) products = products.filter(p =>
-      p.title.toLowerCase().includes(q.toLowerCase())
-    );
+
+    if (q)
+      products = products.filter(p =>
+        p.title.toLowerCase().includes(q.toLowerCase())
+      );
+
     if (minPrice) products = products.filter(p => p.price >= Number(minPrice));
     if (maxPrice) products = products.filter(p => p.price <= Number(maxPrice));
 
@@ -98,23 +105,28 @@ export default async function handler(req, res) {
       .from("products")
       .select("*", { count: "exact" });
 
-    // Case-insensitive category
-    if (category) query = query.ilike("category", category);
+    // Case-insensitive, partial matches
+    if (category) query = query.ilike("category", `%${category}%`);
+    if (merchant) query = query.ilike("merchant", `%${merchant}%`);
     if (color) query = query.eq("color", color);
-    if (merchant) query = query.ilike("merchant", merchant);
 
     const min = minPrice ? parseFloat(minPrice) : undefined;
     const max = maxPrice ? parseFloat(maxPrice) : undefined;
+
     if (min !== undefined) query = query.gte("price", min);
     if (max !== undefined) query = query.lte("price", max);
 
     if (q) query = query.ilike("title", `%${q}%`);
 
     // Sorting
-    if (sort === "popular") query = query.order("clicks", { ascending: false });
-    else if (sort === "new") query = query.order("created_at", { ascending: false });
-    else if (sort === "price_asc") query = query.order("price", { ascending: true });
-    else if (sort === "price_desc") query = query.order("price", { ascending: false });
+    if (sort === "popular")
+      query = query.order("clicks", { ascending: false });
+    else if (sort === "new")
+      query = query.order("created_at", { ascending: false });
+    else if (sort === "price_asc")
+      query = query.order("price", { ascending: true });
+    else if (sort === "price_desc")
+      query = query.order("price", { ascending: false });
 
     const from = (pageNum - 1) * pageLimit;
     const to = from + pageLimit - 1;
@@ -129,7 +141,7 @@ export default async function handler(req, res) {
     }
 
     return res.status(200).json({
-      products: data,
+      products: data || [],
       totalPages: Math.ceil((count || 0) / pageLimit),
       page: pageNum,
     });

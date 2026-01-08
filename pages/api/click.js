@@ -1,8 +1,7 @@
 import crypto from "crypto";
-import { supabase } from "../../lib/supabase";
+import { supabaseAdmin } from "../../lib/supabaseAdmin";
 
-const CLICK_TTL_MS = 5000; // 5 seconds
-
+const CLICK_TTL_MS = 5000;
 const clickCache = new Map();
 
 export default async function handler(req, res) {
@@ -19,6 +18,7 @@ export default async function handler(req, res) {
     "unknown";
 
   const ua = req.headers["user-agent"] || "unknown";
+
   const key = crypto
     .createHash("sha256")
     .update(`${id}:${ip}:${ua}`)
@@ -28,14 +28,13 @@ export default async function handler(req, res) {
   const last = clickCache.get(key);
 
   if (last && now - last < CLICK_TTL_MS) {
-    return res.redirect(302, "/"); // ignore duplicate
+    return res.redirect(302, "/");
   }
 
   clickCache.set(key, now);
 
   try {
-    // Get affiliate link
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("products")
       .select("affiliate_link")
       .eq("id", id)
@@ -45,8 +44,7 @@ export default async function handler(req, res) {
       return res.status(404).end();
     }
 
-    // Atomic increment
-    await supabase.rpc("increment_click", { product_id: id });
+    await supabaseAdmin.rpc("increment_click", { product_id: id });
 
     return res.redirect(302, data.affiliate_link);
   } catch (err) {
