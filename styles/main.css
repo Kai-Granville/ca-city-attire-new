@@ -250,6 +250,28 @@ body {
 }
 
 /* ===========================
+   BUY NOW BUTTON
+=========================== */
+.buy-now-btn {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  background: #000;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 10px;
+  font-weight: bold;
+  transition: background 0.2s;
+  text-align: center;
+  cursor: pointer;
+}
+
+.buy-now-btn:hover {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+
+/* ===========================
    PRODUCT DETAIL
 =========================== */
 .product-detail-grid {
