@@ -68,15 +68,16 @@ export default function ProductCard({ product, compact }) {
           </p>
 
           {!compact && (
-            <p
+            <div
               style={{
                 marginTop: "0.5rem",
                 fontSize: "0.85rem",
-                color: "#0070f3",
+                color: "#000", // black
+                fontWeight: "bold",
               }}
             >
               View Details →
-            </p>
+            </div>
           )}
         </div>
 
