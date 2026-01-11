@@ -5,19 +5,17 @@ import Link from "next/link";
 export default function ProductCard({ product, compact }) {
   return (
     <div className="product-card">
-      {/* Image */}
+      {/* Product Image */}
       <div className="product-image-wrapper">
         <img
           src={product.image}
           alt={product.title}
           className="product-image"
-          style={{
-            height: compact ? "100px" : "150px",
-          }}
+          style={{ height: compact ? "100px" : "150px" }}
         />
       </div>
 
-      {/* Title */}
+      {/* Product Title */}
       <h3 className="product-title" style={{ fontSize: compact ? "0.85rem" : "1rem" }}>
         {product.title}
       </h3>
@@ -27,27 +25,14 @@ export default function ProductCard({ product, compact }) {
         £{Number(product.price).toFixed(2)}
       </p>
 
-      {/* Only show buttons/details for full cards */}
+      {/* View Details link only for full cards */}
       {!compact && (
-        <div className="product-card-actions">
-          {/* View Details */}
-          <Link href={`/products/${product.id}`}>
-            <a className="view-details-text">View Details →</a>
-          </Link>
-
-          {/* Buy Now */}
-          <a
-            href={product.affiliate_link || "#"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="buy-now-btn"
-          >
-            Buy Now
-          </a>
-        </div>
+        <Link href={`/products/${product.id}`}>
+          <a className="view-details-text">View Details →</a>
+        </Link>
       )}
 
-      {/* Hover effects */}
+      {/* Hover effect */}
       <style jsx>{`
         .product-card {
           border: 1px solid #eee;
@@ -95,18 +80,13 @@ export default function ProductCard({ product, compact }) {
           margin: 0;
         }
 
-        .product-card-actions {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-          margin-top: 0.5rem;
-        }
-
         .view-details-text {
+          margin-top: 0.5rem;
           color: #000;
           font-weight: bold;
           font-size: 0.85rem;
           text-decoration: none;
+          display: inline-block;
           transition: color 0.2s;
         }
 

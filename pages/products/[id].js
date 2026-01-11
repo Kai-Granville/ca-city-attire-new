@@ -63,21 +63,12 @@ export default function ProductPage() {
     fetchProduct();
   }, [id]);
 
-  const nextImage = () =>
-    setActiveIndex(i => (i + 1) % images.length);
+  const nextImage = () => setActiveIndex(i => (i + 1) % images.length);
+  const prevImage = () => setActiveIndex(i => (i - 1 + images.length) % images.length);
 
-  const prevImage = () =>
-    setActiveIndex(i => (i - 1 + images.length) % images.length);
-
-  /* ---------- Mobile Swipe ---------- */
-  const onTouchStart = e => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const onTouchMove = e => {
-    touchEndX.current = e.touches[0].clientX;
-  };
-
+  // Mobile swipe
+  const onTouchStart = e => { touchStartX.current = e.touches[0].clientX; };
+  const onTouchMove = e => { touchEndX.current = e.touches[0].clientX; };
   const onTouchEnd = () => {
     if (!touchStartX.current || !touchEndX.current) return;
     const delta = touchStartX.current - touchEndX.current;
@@ -131,9 +122,7 @@ export default function ProductPage() {
                     key={i}
                     src={img}
                     alt=""
-                    className={`gallery-thumb ${
-                      i === activeIndex ? "active" : ""
-                    }`}
+                    className={`gallery-thumb ${i === activeIndex ? "active" : ""}`}
                     onClick={() => setActiveIndex(i)}
                   />
                 ))}
@@ -150,6 +139,7 @@ export default function ProductPage() {
             {product.color && <p><strong>Color:</strong> {product.color}</p>}
             {product.category && <p><strong>Category:</strong> {product.category}</p>}
 
+            {/* BUY NOW */}
             <a
               href={`/api/click?id=${product.id}`}
               target="_blank"
@@ -162,7 +152,7 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* SIMILAR PRODUCTS (RESTORED + CLEAR) */}
+      {/* SIMILAR PRODUCTS */}
       <section style={{ marginTop: "4rem" }}>
         <h2 style={{ marginBottom: "1.5rem" }}>Similar Products</h2>
         <SimilarProducts
@@ -177,6 +167,61 @@ export default function ProductPage() {
           <img src={images[activeIndex]} alt="" />
         </div>
       )}
+
+      <style jsx>{`
+        /* Gallery arrows */
+        .gallery-arrow {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background: rgba(0,0,0,0.5);
+          color: #fff;
+          border: none;
+          font-size: 1.2rem;
+          padding: 0.5rem 0.75rem;
+          cursor: pointer;
+          border-radius: 6px;
+          z-index: 10;
+        }
+        .gallery-arrow.left { left: 10px; }
+        .gallery-arrow.right { right: 10px; }
+
+        .gallery-thumbs {
+          display: flex;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
+          overflow-x: auto;
+        }
+        .gallery-thumb {
+          width: 50px;
+          height: 50px;
+          object-fit: cover;
+          border-radius: 6px;
+          opacity: 0.7;
+          cursor: pointer;
+          border: 2px solid transparent;
+        }
+        .gallery-thumb.active {
+          opacity: 1;
+          border-color: var(--accent-color);
+        }
+
+        /* Fullscreen modal */
+        .image-modal {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(0,0,0,0.85);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+        }
+        .image-modal img {
+          max-width: 90%;
+          max-height: 90%;
+          border-radius: 8px;
+        }
+      `}</style>
     </main>
   );
 }
