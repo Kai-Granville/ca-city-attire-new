@@ -1,11 +1,9 @@
-// components/ProductCard.js
 import React from "react";
 import Link from "next/link";
 
 export default function ProductCard({ product, compact }) {
   return (
     <div className="product-card">
-      {/* Product Image */}
       <div className="product-image-wrapper">
         <img
           src={product.image}
@@ -15,24 +13,21 @@ export default function ProductCard({ product, compact }) {
         />
       </div>
 
-      {/* Product Title */}
       <h3 className="product-title" style={{ fontSize: compact ? "0.85rem" : "1rem" }}>
         {product.title}
       </h3>
 
-      {/* Price */}
       <p className="price" style={{ fontSize: compact ? "0.75rem" : "0.9rem" }}>
         £{Number(product.price).toFixed(2)}
       </p>
 
-      {/* View Details link only for full cards */}
+      {/* VIEW DETAILS - plain black text */}
       {!compact && (
         <Link href={`/products/${product.id}`}>
-          <a className="view-details-text">View Details →</a>
+          <a style={{ color: "#000", fontSize: "0.85rem" }}>View Details →</a>
         </Link>
       )}
 
-      {/* Hover effect */}
       <style jsx>{`
         .product-card {
           border: 1px solid #eee;
@@ -78,20 +73,6 @@ export default function ProductCard({ product, compact }) {
           color: #333;
           font-weight: bold;
           margin: 0;
-        }
-
-        .view-details-text {
-          margin-top: 0.5rem;
-          color: #000;
-          font-weight: bold;
-          font-size: 0.85rem;
-          text-decoration: none;
-          display: inline-block;
-          transition: color 0.2s;
-        }
-
-        .product-card:hover .view-details-text {
-          color: var(--accent-color);
         }
       `}</style>
     </div>
