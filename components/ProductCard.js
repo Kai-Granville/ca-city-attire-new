@@ -1,19 +1,22 @@
 import React from "react";
 import Link from "next/link";
 
-export default function ProductCard({ product, compact }) {
+export default function ProductCard({ product, compact, homepage }) {
   return (
-    <div className="product-card">
+    <div className={`product-card ${compact ? "compact" : ""}`}>
       <div className="product-image-wrapper">
         <img
           src={product.image}
           alt={product.title}
           className="product-image"
-          style={{ height: compact ? "100px" : "150px" }}
+          style={{ height: compact ? "120px" : "150px" }}
         />
       </div>
 
-      <h3 className="product-title" style={{ fontSize: compact ? "0.85rem" : "1rem" }}>
+      <h3
+        className="product-title"
+        style={{ fontSize: compact ? "0.85rem" : "1rem" }}
+      >
         {product.title}
       </h3>
 
@@ -21,10 +24,16 @@ export default function ProductCard({ product, compact }) {
         £{Number(product.price).toFixed(2)}
       </p>
 
-      {/* VIEW DETAILS - subtle link */}
-      {!compact && (
+      {/* VIEW DETAILS LINK */}
+      {(homepage || !compact) && (
         <Link href={`/products/${product.id}`}>
-          <a className="view-details-link">View Details →</a>
+          <a
+            className={`view-details-link ${
+              homepage ? "homepage-link" : ""
+            }`}
+          >
+            View Details →
+          </a>
         </Link>
       )}
     </div>

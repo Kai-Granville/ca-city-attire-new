@@ -598,3 +598,48 @@ body {
   color: #555;
   line-height: 1.6;
 }
+
+/* ===========================
+   PRODUCT CARD VARIANTS
+=========================== */
+.product-card.compact {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.product-card.compact:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* ===========================
+   VIEW DETAILS LINK
+=========================== */
+.view-details-link {
+  color: #000;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  display: inline-block;
+  margin-top: 0.5rem;
+  transition: color 0.2s;
+}
+
+.view-details-link:hover {
+  color: var(--accent-color); /* gold on hover */
+}
+
+/* Optional: keep full-card button style if desired */
+.view-details-btn {
+  background: #000;
+  color: #fff;
+  padding: 0.8rem 1.5rem;
+  border-radius: 10px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.view-details-btn:hover {
+  background: var(--accent-color);
+}
+
