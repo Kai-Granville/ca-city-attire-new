@@ -1,178 +1,116 @@
-// pages/products/[id].js
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../../lib/supabase";
-import ProductCard from "../../components/ProductCard";
+import SimilarProducts from "../../components/SimilarProducts";
 import Head from "next/head";
-
-// Swipe-friendly similar products component
-function SimilarProducts({ products }) {
-  const containerRef = useRef(null);
-
-  if (!products || products.length === 0) return null;
-
-  const scrollLeft = () => {
-    if (containerRef.current) {
-      containerRef.current.scrollBy({ left: -300, behavior: "smooth" });
-    }
-  };
-
-  const scrollRight = () => {
-    if (containerRef.current) {
-      containerRef.current.scrollBy({ left: 300, behavior: "smooth" });
-    }
-  };
-
-  return (
-    <section style={{ marginTop: "4rem" }}>
-      <h2 style={{ fontSize: "1.8rem", marginBottom: "1.5rem" }}>
-        You may also like
-      </h2>
-
-      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-        {/* Left arrow */}
-        <button
-          onClick={scrollLeft}
-          style={{
-            background: "#eee",
-            border: "none",
-            padding: "0.5rem 1rem",
-            cursor: "pointer",
-            flexShrink: 0,
-          }}
-        >
-          ◀
-        </button>
-
-        {/* Scrollable product container */}
-        <div
-          ref={containerRef}
-          style={{
-            display: "flex",
-            overflowX: "auto",
-            gap: "1rem",
-            paddingBottom: "0.5rem",
-            scrollSnapType: "x mandatory",
-          }}
-        >
-          {products.map((p) => (
-            <div
-              key={p.id}
-              style={{
-                flex: "0 0 auto",
-                scrollSnapAlign: "start",
-                minWidth: "180px",
-              }}
-            >
-              <ProductCard product={p} />
-            </div>
-          ))}
-        </div>
-
-        {/* Right arrow */}
-        <button
-          onClick={scrollRight}
-          style={{
-            background: "#eee",
-            border: "none",
-            padding: "0.5rem 1rem",
-            cursor: "pointer",
-            flexShrink: 0,
-          }}
-        >
-          ▶
-        </button>
-      </div>
-    </section>
-  );
-}
 
 export default function ProductPage() {
   const router = useRouter();
   const { id } = router.query;
 
   const [product, setProduct] = useState(null);
+  const [images, setImages] = useState([]);
+  const [activeImage, setActiveImage] = useState("");
   const [similarProducts, setSimilarProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!id) return;
 
     const fetchProduct = async () => {
-      try {
-        // Fetch main product
-        const { data, error } = await supabase
-          .from("products")
-          .select("*")
-          .eq("id", id)
-          .single();
+      const { data, error } = await supabase
+        .from("products")
+        .select(`
+          *,
+          product_images (
+            image_url,
+            position
+          )
+        `)
+        .eq("id", id)
+        .single();
 
-        if (error) throw error;
-        setProduct(data);
+      if (error) return;
 
-        // Fetch similar products (same category)
-        const res = await fetch(
-          `/api/products?category=${encodeURIComponent(data.category)}&sort=popular&limit=12`
-        );
-        const similarData = await res.json();
+      const imgs = (data.product_images || [])
+        .sort((a, b) => a.position - b.position)
+        .map(i => i.image_url);
 
-        let similar = similarData.products.filter((p) => p.id !== id);
+      setProduct(data);
+      setImages(imgs);
+      setActiveImage(imgs[0] || data.image);
 
-        // Fallback: if less than 4, fill with popular products
-        if (similar.length < 4) {
-          const res2 = await fetch(`/api/products?sort=popular&limit=6`);
-          const extra = (await res2.json()).products.filter((p) => p.id !== id);
-          similar = [...similar, ...extra].slice(0, 6);
-        }
-
-        setSimilarProducts(similar);
-        setLoading(false);
-      } catch (err) {
-        console.error(err);
-        setError("Product not found.");
-        setLoading(false);
-      }
+      // similar products
+      const res = await fetch(
+        `/api/products?category=${data.category}&limit=8`
+      );
+      const json = await res.json();
+      setSimilarProducts(json.products.filter(p => p.id !== id));
     };
 
     fetchProduct();
   }, [id]);
 
-  if (loading) return <p style={{ padding: "2rem" }}>Loading...</p>;
-  if (error || !product) return <p style={{ padding: "2rem" }}>{error}</p>;
+  if (!product) return <p>Loading...</p>;
 
   return (
     <main className="container">
-      <section className="product-detail">
-        <Head>
-          <title>{product.title} | City Attire</title>
-        </Head>
+      <Head>
+        <title>{product.title}</title>
+      </Head>
 
-        <div className="product-detail-grid">
-          <div className="product-image">
-            <img src={product.image} alt={product.title} />
-          </div>
+      <div className="product-detail-grid">
+        {/* IMAGE GALLERY */}
+        <div>
+          <img
+            src={activeImage}
+            alt={product.title}
+            style={{
+              width: "100%",
+              borderRadius: "8px",
+              marginBottom: "0.5rem",
+            }}
+          />
 
-          <div className="product-info">
-            <h1>{product.title}</h1>
-            <p className="price">£{Number(product.price).toFixed(2)}</p>
-            <p><strong>Merchant:</strong> {product.merchant}</p>
-            {product.color && <p><strong>Color:</strong> {product.color}</p>}
-            {product.category && <p><strong>Category:</strong> {product.category}</p>}
-
-            <a
-              href={`/api/click?id=${product.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="buy-now-btn"
-            >
-              Buy Now
-            </a>
-          </div>
+          {/* Thumbnails */}
+          {images.length > 1 && (
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              {images.map((img, i) => (
+                <img
+                  key={i}
+                  src={img}
+                  onClick={() => setActiveImage(img)}
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    objectFit: "cover",
+                    cursor: "pointer",
+                    border:
+                      img === activeImage
+                        ? "2px solid black"
+                        : "1px solid #ddd",
+                    borderRadius: "4px",
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
-      </section>
 
-      {/* Similar products carousel */}
+        {/* INFO */}
+        <div>
+          <h1>{product.title}</h1>
+          <p>£{product.price}</p>
+
+          <a
+            href={`/api/click?id=${product.id}`}
+            className="buy-now-btn"
+            target="_blank"
+          >
+            Buy Now
+          </a>
+        </div>
+      </div>
+
       <SimilarProducts products={similarProducts} />
     </main>
   );
