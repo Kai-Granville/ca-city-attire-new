@@ -1,88 +1,39 @@
-// components/SimilarProducts.js
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 import ProductCard from "./ProductCard";
-import { useRef } from "react";
 
-// Compact carousel with smaller cards and fonts
-export default function SimilarProducts({ products }) {
-  const containerRef = useRef(null);
+export default function SimilarProducts({ category, currentProductId }) {
+  const [products, setProducts] = useState([]);
 
-  if (!products || products.length === 0) return null;
+  useEffect(() => {
+    if (!category) return;
 
-  const scrollLeft = () => {
-    if (containerRef.current) {
-      containerRef.current.scrollBy({ left: -200, behavior: "smooth" });
-    }
-  };
+    const fetchSimilar = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .ilike("category", category)
+          .neq("id", currentProductId)
+          .limit(6);
 
-  const scrollRight = () => {
-    if (containerRef.current) {
-      containerRef.current.scrollBy({ left: 200, behavior: "smooth" });
-    }
-  };
+        if (error) throw error;
+        setProducts(data || []);
+      } catch (err) {
+        console.error("Similar products fetch failed:", err);
+      }
+    };
+
+    fetchSimilar();
+  }, [category, currentProductId]);
+
+  if (!products.length) return <p>No similar products found.</p>;
 
   return (
-    <section style={{ marginTop: "1.5rem" }}>
-      <h2 style={{ fontSize: "1.3rem", marginBottom: "0.75rem" }}>
-        You may also like
-      </h2>
-
-      <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-        {/* Left arrow */}
-        <button
-          onClick={scrollLeft}
-          style={{
-            background: "#eee",
-            border: "none",
-            padding: "0.25rem 0.5rem",
-            cursor: "pointer",
-            flexShrink: 0,
-          }}
-        >
-          ◀
-        </button>
-
-        {/* Scrollable container */}
-        <div
-          ref={containerRef}
-          style={{
-            display: "flex",
-            overflowX: "auto",
-            gap: "0.5rem",
-            paddingBottom: "0.25rem",
-            scrollSnapType: "x mandatory",
-          }}
-        >
-          {products.map((p) => (
-            <div
-              key={p.id}
-              style={{
-                flex: "0 0 auto",
-                scrollSnapAlign: "start",
-                minWidth: "130px", // smaller card
-              }}
-            >
-              <ProductCard
-                product={p}
-                compact // pass a flag to shrink inside ProductCard
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Right arrow */}
-        <button
-          onClick={scrollRight}
-          style={{
-            background: "#eee",
-            border: "none",
-            padding: "0.25rem 0.5rem",
-            cursor: "pointer",
-            flexShrink: 0,
-          }}
-        >
-          ▶
-        </button>
-      </div>
-    </section>
+    <div className="similar-products-container">
+      {products.map(p => (
+        <ProductCard key={p.id} product={p} />
+      ))}
+    </div>
   );
 }
