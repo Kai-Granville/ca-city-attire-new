@@ -96,73 +96,80 @@ export default function ProductPage() {
         <title>{product.title} | City Attire</title>
       </Head>
 
-      <div className="product-detail-grid">
-        {/* IMAGE GALLERY */}
-        <div
-          className="product-gallery"
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-        >
-          <img
-            src={images[activeIndex]}
-            alt={product.title}
-            className="product-gallery-main zoomable"
-            onClick={() => setIsModalOpen(true)}
-          />
-
-          {images.length > 1 && (
-            <>
-              <button className="gallery-arrow left" onClick={prevImage}>
-                ◀
-              </button>
-              <button className="gallery-arrow right" onClick={nextImage}>
-                ▶
-              </button>
-            </>
-          )}
-
-          {images.length > 1 && (
-            <div className="gallery-thumbs">
-              {images.map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  className={`gallery-thumb ${
-                    i === activeIndex ? "active" : ""
-                  }`}
-                  onClick={() => setActiveIndex(i)}
-                  alt=""
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* PRODUCT INFO */}
-        <div className="product-info">
-          <h1>{product.title}</h1>
-          <p className="price">£{Number(product.price).toFixed(2)}</p>
-
-          <p><strong>Merchant:</strong> {product.merchant}</p>
-          {product.color && <p><strong>Color:</strong> {product.color}</p>}
-          {product.category && <p><strong>Category:</strong> {product.category}</p>}
-
-          <a
-            href={`/api/click?id=${product.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="buy-now-btn"
+      {/* PRODUCT DETAIL */}
+      <section className="product-detail">
+        <div className="product-detail-grid">
+          {/* IMAGE GALLERY */}
+          <div
+            className="product-gallery"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
           >
-            Buy Now
-          </a>
-        </div>
-      </div>
+            <img
+              src={images[activeIndex]}
+              alt={product.title}
+              className="product-gallery-main zoomable"
+              onClick={() => setIsModalOpen(true)}
+            />
 
-      <SimilarProducts
-        category={product.category}
-        currentProductId={product.id}
-      />
+            {images.length > 1 && (
+              <>
+                <button className="gallery-arrow left" onClick={prevImage}>
+                  ◀
+                </button>
+                <button className="gallery-arrow right" onClick={nextImage}>
+                  ▶
+                </button>
+              </>
+            )}
+
+            {images.length > 1 && (
+              <div className="gallery-thumbs">
+                {images.map((img, i) => (
+                  <img
+                    key={i}
+                    src={img}
+                    alt=""
+                    className={`gallery-thumb ${
+                      i === activeIndex ? "active" : ""
+                    }`}
+                    onClick={() => setActiveIndex(i)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* PRODUCT INFO */}
+          <div className="product-info">
+            <h1>{product.title}</h1>
+            <p className="price">£{Number(product.price).toFixed(2)}</p>
+
+            <p><strong>Merchant:</strong> {product.merchant}</p>
+            {product.color && <p><strong>Color:</strong> {product.color}</p>}
+            {product.category && <p><strong>Category:</strong> {product.category}</p>}
+
+            <a
+              href={`/api/click?id=${product.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="buy-now-btn"
+            >
+              Buy Now
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* SIMILAR PRODUCTS (RESTORED + CLEAR) */}
+      <section style={{ marginTop: "4rem" }}>
+        <h2 style={{ marginBottom: "1.5rem" }}>Similar Products</h2>
+        <SimilarProducts
+          category={product.category}
+          currentProductId={product.id}
+        />
+      </section>
 
       {/* FULLSCREEN MODAL */}
       {isModalOpen && (
