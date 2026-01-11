@@ -643,3 +643,40 @@ body {
   background: var(--accent-color);
 }
 
+/* ===========================
+   PRODUCT CARD VARIANTS
+=========================== */
+.product-card.compact {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.product-card.compact:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* ===========================
+   VIEW DETAILS LINK
+=========================== */
+.view-details-link {
+  color: #000;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  display: inline-block;
+  margin-top: 0.5rem;
+  transition: color 0.2s;
+}
+
+.view-details-link:hover {
+  color: var(--accent-color); /* gold on hover */
+}
+
+/* Homepage-specific smaller styling */
+.view-details-link.homepage-link {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: underline;
+  color: #000;
+}
+
+

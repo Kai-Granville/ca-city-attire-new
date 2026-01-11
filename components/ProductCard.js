@@ -4,6 +4,7 @@ import Link from "next/link";
 export default function ProductCard({ product, compact, homepage }) {
   return (
     <div className={`product-card ${compact ? "compact" : ""}`}>
+      {/* IMAGE */}
       <div className="product-image-wrapper">
         <img
           src={product.image}
@@ -13,6 +14,7 @@ export default function ProductCard({ product, compact, homepage }) {
         />
       </div>
 
+      {/* TITLE */}
       <h3
         className="product-title"
         style={{ fontSize: compact ? "0.85rem" : "1rem" }}
@@ -20,6 +22,7 @@ export default function ProductCard({ product, compact, homepage }) {
         {product.title}
       </h3>
 
+      {/* PRICE */}
       <p className="price" style={{ fontSize: compact ? "0.75rem" : "0.9rem" }}>
         £{Number(product.price).toFixed(2)}
       </p>
@@ -27,11 +30,7 @@ export default function ProductCard({ product, compact, homepage }) {
       {/* VIEW DETAILS LINK */}
       {(homepage || !compact) && (
         <Link href={`/products/${product.id}`}>
-          <a
-            className={`view-details-link ${
-              homepage ? "homepage-link" : ""
-            }`}
-          >
+          <a className={`view-details-link ${homepage ? "homepage-link" : ""}`}>
             View Details →
           </a>
         </Link>
