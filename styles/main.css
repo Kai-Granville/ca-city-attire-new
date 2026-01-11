@@ -219,8 +219,8 @@ body {
 }
 
 /* View details / Buy Now buttons */
-.product-card a,
-.view-details-btn {
+.view-details-btn,
+.buy-now-btn {
   background: #000;
   color: #fff;
   padding: 0.6rem 1rem;
@@ -239,14 +239,16 @@ body {
 }
 
 .view-details-link {
-  color: #000; /* black text */
-  text-decoration: none;
+  color: #000;
   font-size: 0.85rem;
+  text-decoration: underline;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  display: inline-block;
 }
 
 .view-details-link:hover {
-  color: #000; /* stays black on hover */
-  text-decoration: underline; /* optional */
+  color: var(--accent-color);
 }
 
 /* ===========================
