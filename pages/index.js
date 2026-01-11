@@ -51,7 +51,7 @@ export default function Home() {
         <p className="section-subline">Most clicked workwear right now</p>
         <div className="product-grid">
           {topPicks.map((p) => (
-            <ProductCard key={p.id} product={p} compact />
+            <ProductCard key={p.id} product={p} compact homepage />
           ))}
         </div>
       </section>
@@ -72,7 +72,7 @@ export default function Home() {
         <p className="section-subline">Products our visitors are loving this week</p>
         <div className="product-grid">
           {secondSection.map((p) => (
-            <ProductCard key={p.id} product={p} compact />
+            <ProductCard key={p.id} product={p} compact homepage />
           ))}
         </div>
       </section>
