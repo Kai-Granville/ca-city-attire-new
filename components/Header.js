@@ -1,3 +1,4 @@
+// components/Header.js
 import { useState } from "react";
 import { useRouter } from "next/router";
 
@@ -23,20 +24,12 @@ export default function Header() {
 
   return (
     <header className="site-header">
+      {/* Logo Left */}
       <div className="logo" onClick={() => router.push("/")}>
         City Attire
       </div>
 
-      <form onSubmit={handleSearch} className="header-search">
-        <input
-          type="text"
-          placeholder="Search shirts, suits, trousers..."
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-        />
-        <button type="submit">Search</button>
-      </form>
-
+      {/* Categories Center */}
       <nav className="category-nav">
         {categories.map(cat => (
           <button
@@ -50,6 +43,17 @@ export default function Header() {
           </button>
         ))}
       </nav>
+
+      {/* Search Right */}
+      <form onSubmit={handleSearch} className="header-search">
+        <input
+          type="text"
+          placeholder="Search shirts, suits, trousers..."
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+        />
+        <button type="submit">Search</button>
+      </form>
     </header>
   );
 }
