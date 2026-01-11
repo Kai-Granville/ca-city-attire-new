@@ -449,3 +449,20 @@ body {
     justify-content: center;
   }
 }
+
+/* ===========================
+   VIEW DETAILS LINK
+=========================== */
+.view-details-link {
+  color: #000;             /* black text */
+  font-size: 0.85rem;
+  text-decoration: none;    /* remove underline */
+  display: inline-block;
+  margin-top: 0.5rem;
+  transition: color 0.2s;
+}
+
+.view-details-link:hover {
+  color: var(--accent-color); /* gold on hover */
+  text-decoration: underline; /* subtle underline */
+}

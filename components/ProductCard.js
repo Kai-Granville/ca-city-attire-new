@@ -21,7 +21,7 @@ export default function ProductCard({ product, compact }) {
         £{Number(product.price).toFixed(2)}
       </p>
 
-      {/* VIEW DETAILS LINK */}
+      {/* VIEW DETAILS - subtle link */}
       {!compact && (
         <Link href={`/products/${product.id}`}>
           <a className="view-details-link">View Details →</a>
