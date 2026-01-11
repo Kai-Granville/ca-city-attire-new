@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../../lib/supabase";
-import SimilarProducts from "../../components/SimilarProducts";
 import Head from "next/head";
+import SimilarProducts from "../../components/SimilarProducts";
 
 export default function ProductPage() {
   const router = useRouter();
@@ -10,108 +10,187 @@ export default function ProductPage() {
 
   const [product, setProduct] = useState(null);
   const [images, setImages] = useState([]);
-  const [activeImage, setActiveImage] = useState("");
-  const [similarProducts, setSimilarProducts] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!id) return;
 
     const fetchProduct = async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select(`
-          *,
-          product_images (
-            image_url,
-            position
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select(
+            `
+            *,
+            product_images (
+              image_url,
+              position
+            )
+          `
           )
-        `)
-        .eq("id", id)
-        .single();
+          .eq("id", id)
+          .single();
 
-      if (error) return;
+        if (error) throw error;
 
-      const imgs = (data.product_images || [])
-        .sort((a, b) => a.position - b.position)
-        .map(i => i.image_url);
+        setProduct(data);
 
-      setProduct(data);
-      setImages(imgs);
-      setActiveImage(imgs[0] || data.image);
+        // Use gallery images if present, fallback to single image
+        const galleryImages =
+          data.product_images && data.product_images.length > 0
+            ? data.product_images
+                .sort((a, b) => a.position - b.position)
+                .map(i => i.image_url)
+            : [data.image];
 
-      // similar products
-      const res = await fetch(
-        `/api/products?category=${data.category}&limit=8`
-      );
-      const json = await res.json();
-      setSimilarProducts(json.products.filter(p => p.id !== id));
+        setImages(galleryImages);
+        setActiveIndex(0);
+        setLoading(false);
+
+        // Increment clicks safely
+        await supabase.rpc("increment_click", { product_id: id });
+      } catch (err) {
+        console.error(err);
+        setError("Product not found.");
+        setLoading(false);
+      }
     };
 
     fetchProduct();
   }, [id]);
 
-  if (!product) return <p>Loading...</p>;
+  const nextImage = () => {
+    setActiveIndex(i => (i + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setActiveIndex(i => (i - 1 + images.length) % images.length);
+  };
+
+  if (loading) return <p style={{ padding: "2rem" }}>Loading...</p>;
+  if (error || !product) return <p style={{ padding: "2rem" }}>{error}</p>;
 
   return (
     <main className="container">
-      <Head>
-        <title>{product.title}</title>
-      </Head>
-
-      <div className="product-detail-grid">
-        {/* IMAGE GALLERY */}
-        <div>
-          <img
-            src={activeImage}
-            alt={product.title}
-            style={{
-              width: "100%",
-              borderRadius: "8px",
-              marginBottom: "0.5rem",
+      <section className="product-detail">
+        <Head>
+          <title>{product.title} | City Attire</title>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org/",
+                "@type": "Product",
+                name: product.title,
+                image: images,
+                description: `${product.category ? product.category + " " : ""}${
+                  product.color ? product.color + " " : ""
+                }work clothing by ${product.merchant}`,
+                sku: product.id,
+                brand: { "@type": "Brand", name: product.merchant },
+                offers: {
+                  "@type": "Offer",
+                  url: product.affiliate_link || "",
+                  priceCurrency: "GBP",
+                  price: Number(product.price).toFixed(2),
+                  availability: "https://schema.org/InStock",
+                  itemCondition: "https://schema.org/NewCondition",
+                },
+              }),
             }}
           />
+        </Head>
 
-          {/* Thumbnails */}
-          {images.length > 1 && (
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              {images.map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  onClick={() => setActiveImage(img)}
-                  style={{
-                    width: "60px",
-                    height: "60px",
-                    objectFit: "cover",
-                    cursor: "pointer",
-                    border:
-                      img === activeImage
-                        ? "2px solid black"
-                        : "1px solid #ddd",
-                    borderRadius: "4px",
-                  }}
-                />
-              ))}
-            </div>
-          )}
+        <div className="product-detail-grid">
+          {/* IMAGE GALLERY */}
+          <div className="product-gallery">
+            <img
+              src={images[activeIndex]}
+              alt={product.title}
+              className="product-gallery-main"
+            />
+
+            {images.length > 1 && (
+              <>
+                <button
+                  className="gallery-arrow left"
+                  onClick={prevImage}
+                  aria-label="Previous image"
+                >
+                  ◀
+                </button>
+
+                <button
+                  className="gallery-arrow right"
+                  onClick={nextImage}
+                  aria-label="Next image"
+                >
+                  ▶
+                </button>
+              </>
+            )}
+
+            {images.length > 1 && (
+              <div className="gallery-thumbs">
+                {images.map((img, i) => (
+                  <img
+                    key={i}
+                    src={img}
+                    alt={`${product.title} ${i + 1}`}
+                    className={`gallery-thumb ${
+                      i === activeIndex ? "active" : ""
+                    }`}
+                    onClick={() => setActiveIndex(i)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* PRODUCT INFO */}
+          <div className="product-info">
+            <h1>{product.title}</h1>
+            <p className="price">£{Number(product.price).toFixed(2)}</p>
+
+            <p>
+              <strong>Merchant:</strong> {product.merchant}
+            </p>
+
+            {product.color && (
+              <p>
+                <strong>Color:</strong> {product.color}
+              </p>
+            )}
+
+            {product.category && (
+              <p>
+                <strong>Category:</strong> {product.category}
+              </p>
+            )}
+
+            <a
+              href={`/api/click?id=${product.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="buy-now-btn"
+            >
+              Buy Now
+            </a>
+
+            <p className="microcopy">
+              You’ll be redirected to the retailer to complete your purchase.
+            </p>
+          </div>
         </div>
+      </section>
 
-        {/* INFO */}
-        <div>
-          <h1>{product.title}</h1>
-          <p>£{product.price}</p>
-
-          <a
-            href={`/api/click?id=${product.id}`}
-            className="buy-now-btn"
-            target="_blank"
-          >
-            Buy Now
-          </a>
-        </div>
-      </div>
-
-      <SimilarProducts products={similarProducts} />
+      {/* SIMILAR PRODUCTS */}
+      <SimilarProducts
+        category={product.category}
+        currentProductId={product.id}
+      />
     </main>
   );
 }
