@@ -26,7 +26,7 @@ export default function Home() {
         <p className="hero-subline">
           Curated menswear from trusted brands. Updated daily. No sponsored placements.
         </p>
-        <a href="/category/all" className="hero-cta">
+        <a href="/category/all?sort=popular" className="hero-cta">
           Shop Best Sellers →
         </a>
       </section>
