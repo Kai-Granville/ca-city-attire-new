@@ -25,15 +25,13 @@ export default function ProductPage() {
       try {
         const { data, error } = await supabase
           .from("products")
-          .select(
-            `
+          .select(`
             *,
             product_images (
               image_url,
               position
             )
-          `
-          )
+          `)
           .eq("id", id)
           .single();
 
@@ -52,6 +50,7 @@ export default function ProductPage() {
         setActiveIndex(0);
         setLoading(false);
 
+        // Increment clicks
         await supabase.rpc("increment_click", { product_id: id });
       } catch (err) {
         console.error(err);
@@ -66,6 +65,7 @@ export default function ProductPage() {
   const nextImage = () => setActiveIndex(i => (i + 1) % images.length);
   const prevImage = () => setActiveIndex(i => (i - 1 + images.length) % images.length);
 
+  /* ---------- Mobile Swipe ---------- */
   const onTouchStart = e => { touchStartX.current = e.touches[0].clientX; };
   const onTouchMove = e => { touchEndX.current = e.touches[0].clientX; };
   const onTouchEnd = () => {
@@ -129,6 +129,7 @@ export default function ProductPage() {
           <div className="product-info">
             <h1>{product.title}</h1>
             <p className="price">£{Number(product.price).toFixed(2)}</p>
+
             <p><strong>Merchant:</strong> {product.merchant}</p>
             {product.color && <p><strong>Color:</strong> {product.color}</p>}
             {product.category && <p><strong>Category:</strong> {product.category}</p>}

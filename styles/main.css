@@ -238,6 +238,17 @@ body {
   color: #fff;
 }
 
+.view-details-link {
+  color: #000; /* black text */
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.view-details-link:hover {
+  color: #000; /* stays black on hover */
+  text-decoration: underline; /* optional */
+}
+
 /* ===========================
    PRODUCT DETAIL
 =========================== */
